@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>SEEKreto</title>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-left">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="login-logo">
+            <h1>SEEKreto</h1>
+        </div>
+        <div class="navbar-right">
+            <a href="#home-section"class="navbar-button login-button">Home</a>
+            <a href="#about-section"class="navbar-button login-button">About</a>
+            <a href="#grid-section"class="navbar-button login-button">Features</a>
+            <a href="#team-section"class="navbar-button login-button">Team</a>
+            <a href="{{ url_for('login') }}" class="navbar-button login-button">Login</a>
+            <a href="{{ url_for('register') }}" class="navbar-button">Sign Up</a>
+        </div>
+        <div class="hamburger-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+      </nav>
+     
+      <div class="mobile-menu">
+        <a href="#home-section">Home</a>
+        <a href="#about-section">About</a>
+        <a href="#grid-section">Features</a>
+        <a href="#team-section">Team</a>
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}">Sign Up</a>
+      </div>
+
+      <section id="home-section">
+        <div class="welcome-container">
+            <h1>Welcome to SEEKreto</h1>
+            <p>"Encrypt It, Decrypt It, Keep It Safe with SEEKreto"</p> 
+            <div class="button-container">
+                <a href="{{ url_for('register') }}" class="button">Start Encrypting</a>
+            </div>
+        </div>
+        <div class="linear-background">
+            <div class="final-img">
+                <img src="{{ url_for('static', filename='images/featurepic.png') }}" alt="CodeCrypt Feature" class="picture-container">
+            </div>
+        </div>
+    </section>
+   
+
+
+<section id ="about-section">
+    <div class="about-content" data-animate>
+        <span class="tagline">About</span>
+        <h2 class="title">Who Are We?</h2>
+        <p class="description">
+            "At SEEKreto, we provide a simple and engaging platform for encrypting and decrypting data using traditional cipher methods and data representation tools, designed for both practical use and learning enjoyment."
+        </p>
+    </div>
+    <div class="cards">
+        <div class="card" data-animate>
+            <div class="icon">
+                <i class="fas fa-bullseye"></i>
+            </div>
+            <h4>Mission</h4>
+            <p>To offer accessible and fun encryption and decryption tools that make traditional cipher methods easy to use for learning and practical applications.</p>
+        </div>
+        <div class="card" data-animate>
+            <div class="icon">
+                <i class="fas fa-eye"></i>
+            </div>
+            <h4>Vision</h4>
+            <p>To make encryption and decryption tools accessible and enjoyable for everyone, fostering a better understanding of digital privacy and security.</p>
+        </div>
+        <div class="card" data-animate>
+            <div class="icon">
+                <i class="fas fa-lightbulb"></i>
+            </div>
+            <h4>Values</h4>
+            <p>Simplicity: Easy-to-use tools for all.<br>
+                Education: Learning through encryption.<br>
+                Integrity: Trust is our foundation.<br>
+                Security: Reliable encryption methods.<br>
+                User-Centricity: Security with simplicity.</p>
+        </div>
+    </div>
+</section>
+
+<section id="grid-section">
+  <div class="about-content" data-animate>
+    <h2 class="title">Features</h2>
+    <p class="description">
+        Our cipher tools provide simple encryption and decryption using classic methods, offering a hands-on approach to learning about data protection. Designed for ease of use, they ensure a fun and educational experience for individuals exploring basic encryption techniques.
+    </p>
+</div>
+    <div class="grid-container">
+
+
+      <div class="grid-item" data-animate>
+        <i class="fas fa-align-left"></i>
+        <p>Affine Cipher</p>
+      </div>
+      <div class="grid-item" data-animate>
+        <i class="fas fa-arrow-left"></i>
+        <p>Atbash Cipher</p>
+      </div>
+      <div class="grid-item" data-animate>
+        <i class="fas fa-code"></i>
+        <p>Base64 Encoding</p>
+      </div>
+      <div class="grid-item" data-animate>
+        <i class="fas fa-circle"></i>
+        <p>Binary Encoding</p>
+      </div>
+      <div class="grid-item" data-animate>
+        <i class="fas fa-asterisk"></i>
+        <p>Caesar Cipher</p>
+      </div>
+      <div class="grid-item" data-animate>
+        <i class="fas fa-hashtag"></i>
+        <p>Hexadecimal Encoding</p>
+      </div>
+      <div class="grid-item" data-animate>
+        <i class="fas fa-wave-square"></i>
+        <p>Morse Code</p>
+      </div>
+      <div class="grid-item" data-animate>
+        <i class="fas fa-random"></i>
+        <p>Rail Fence Cipher</p>
+      </div>
+      <div class="grid-item" data-animate>
+        <i class="fas fa-sync-alt"></i>
+        <p>ROT13 Cipher</p>
+      </div>
+      <div class="grid-item" data-animate>
+        <i class="fas fa-font"></i>
+        <p>Vigenère Cipher</p>
+      </div>
+      <div class="grid-item" data-animate>
+        <i class="fas fa-heart"></i>
+        <p>Favorites</p>
+      </div>
+      <div class="grid-item" data-animate>
+        <i class="fas fa-history"></i>
+        <p>History</p>
+      </div>
+    </div>
+  </section>
+  <section id="team-section">
+    <div class="team-row" data-animate>
+        <h2 class="title">Our Team</h2>
+        <p class="description">
+            Our team focuses on traditional encryption and decryption methods, offering simple, effective tools for secure data protection and learning.
+        </p>
+    </div>
+
+
+    <!-- Change team -->
+    <div class="team-row">
+        <div class="team-column" data-animate>
+            <div class="team-card">
+                <div class="team-img-container">
+                    <img src="{{ url_for('static', filename='images/profile-liza.jpg') }}" alt="Liza Loraine Ignacio">
+                </div>
+                <h3 class="team-name">Liza Loraine Ignacio</h3>
+                <p class="team-role">Full Stack Developer</p>
+                <div class="team-icons">
+                    <a href="https://x.com/lilorainee"><i class="fab fa-twitter"></i></a>
+                    <a href="https://facebook.com/lizalorainee"><i class="fab fa-facebook"></i></a>
+                    <a href="https://github.com/lizaloraine"><i class="fab fa-github"></i></a>
+                    <a href="mailto:lizaloraine124@gmail.com?subject=Subject&body=Body%20text"><i class="fas fa-envelope"></i></a> 
+                </div>
+            </div>
+        </div>
+        <div class="team-column" data-animate>
+            <div class="team-card">
+                <div class="team-img-container">
+                    <img src="{{ url_for('static', filename='images/profile-hillarie.jpg') }}" alt="Hillarie Godoy">
+                </div>
+                <h3 class="team-name">Hillarie Godoy</h3>
+                <p class="team-role">Back-End Developer</p>
+                <div class="team-icons">
+                    <a href="https://x.com/hllrgdyy"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.facebook.com/hllrgdyy/"><i class="fab fa-facebook"></i></a>
+                    <a href="https://github.com/larielarie"><i class="fab fa-github"></i></a>
+                    <a href="mailto:godoyhillarie@gmail.com?subject=Subject&body=Body%20text"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="team-column" data-animate>
+            <div class="team-card">
+                <div class="team-img-container">
+                    <img src="{{ url_for('static', filename='images/profile-jeff.jpg') }}" alt="Jeff Lawrence Balbuena">
+                </div>
+                <h3 class="team-name">Jeff Lawrence Balbuena</h3>
+                <p class="team-role">Front-End Designer</p>
+                <div class="team-icons">
+                    <a href="https://x.com/notme_lawrencio"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.facebook.com/notmelawrencio"><i class="fab fa-facebook"></i></a>
+                    <a href="https://github.com/lawrencioqt"><i class="fab fa-github"></i></a>
+                    <a href="mailto:jeffbalbuena08@gmail.com?subject=Subject&body=Body%20text"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const elementsToAnimate = document.querySelectorAll("[data-animate]");
+    const gridItems = document.querySelectorAll('.grid-item');
+    const hamburgerMenu = document.querySelector('.hamburger-menu');
+    const mobileMenu = document.querySelector('.mobile-menu');
+
+    
+    hamburgerMenu.addEventListener('click', (event) => {
+        event.preventDefault(); 
+        mobileMenu.classList.toggle('active');
+    });
+
+   
+    document.addEventListener("click", (event) => {
+        if (mobileMenu.classList.contains('active') && 
+            !mobileMenu.contains(event.target) && 
+            !hamburgerMenu.contains(event.target)) {
+            mobileMenu.classList.remove('active');
+        }
+    });
+
+    
+    const menuLinks = document.querySelectorAll('.mobile-menu a');
+    menuLinks.forEach((link) => {
+        link.addEventListener('click', () => {
+            mobileMenu.classList.remove('active');
+        });
+    });
+
+    const handleScroll = () => {
+        elementsToAnimate.forEach((el) => {
+            const rect = el.getBoundingClientRect();
+            
+            if (rect.top <= window.innerHeight * 0.8) {
+                el.style.opacity = "1";
+                el.style.transform = "translateY(0)";
+                el.style.visibility = "visible";
+            }
+        });
+    };
+
+    const handleAnchorLinks = () => {
+        const hash = window.location.hash; 
+        if (hash) {
+            const targetElement = document.querySelector(hash);
+            if (targetElement) {
+                targetElement.scrollIntoView({ behavior: "smooth" }); 
+            }
+        }
+    };
+
+    gridItems.forEach(item => {
+        item.addEventListener('click', () => {
+            gridItems.forEach(btn => btn.classList.remove('active')); 
+            item.classList.add('active'); 
+        });
+    });
+
+    window.addEventListener("scroll", handleScroll);
+    
+    handleScroll();
+    handleAnchorLinks(); 
+});
+
+
+ </script>
+</body>
+</html>
