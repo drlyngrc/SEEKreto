@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeCrypt - Login</title>
+    <script>
+       function openForgotPasswordModal() {
+    document.getElementById('forgot-password-modal').style.display = 'flex'; 
+    document.body.classList.add('modal-active'); 
+}
+
+function closeForgotPasswordModal() {
+    document.getElementById('forgot-password-modal').style.display = 'none';
+    document.body.classList.remove('modal-active'); 
+}
+
+    </script>
+    <link rel="stylesheet" href="../styles/login.css">
+</head>
+<body>
+    <div class="outer-box">
+       
+        <div class="inner-box-1">
+            <div class="login-box">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="login-logo">
+                <h2>Login</h2>
+                <h3>Hey, <span class="blue">Hello</span></h3>
+                <p class="p2">Enter the information you entered while registering.</p>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <ul class="flash-messages">
+                            {% for category, message in messages %}
+                                <li class="{{ category }}">{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endwith %}
+                <form method="POST" action="/login">
+                    <label for="identifier">Email or Username:</label>
+                    <input type="text" id="identifier" name="identifier" required><br>
+
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required><br>
+
+                    <button type="submit">Login</button>
+                </form>
+                <p class="p1">Forgot your password? <a href="#" onclick="openForgotPasswordModal()">Click here</a></p>
+                <p class="p1-regis">Don't have an account? <a href="/register">Register here</a>.</p>
+            </div>
+        </div>
+
+     
+        <div class="inner-box-2">
+            <div class="description-box">
+                <div class="text">
+                    <h3>Digital<br>platform for</h3>
+                    <h4>encrypting<br>and decrypting.</h4>
+                    <p>Encrypt It, Decrypt It,<br>Keep It Safe with CodeCrypt</p>
+                </div>
+            </div>
+        </div>
+    </div>
+                        
+<div id="forgot-password-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+       
+        <span class="close-button" onclick="closeForgotPasswordModal()">&times;</span>
+        <h2>Forgot your password?</h2>
+        <p class = "p3">Please enter the email address you used to register.</p><br>
+        <form method="POST" action="/forgot-password">
+            <label for="email">Enter your registered email:</label>
+            <input type="email" id="email" name="email" required> <br>
+            <button type="submit">Send Password Reset Email</button>
+        </form>
+    </div>
+</div>   
+</body>
+</html>
