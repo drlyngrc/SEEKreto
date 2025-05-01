@@ -16,7 +16,7 @@ function closeForgotPasswordModal() {
 }
 
     </script>
-    <link rel="stylesheet" href="../styles/login.css">
+    <link rel="stylesheet" href="../styles/loginregister.css">
 </head>
 <body>
     <div class="outer-box">
@@ -27,7 +27,9 @@ function closeForgotPasswordModal() {
                 <h2>Login</h2>
                 <h3>Hey, <span class="blue">Hello</span></h3>
                 <p class="p2">Enter the information you entered while registering.</p>
-                {% with messages = get_flashed_messages(with_categories=true) %}
+
+                <!-- Edit this part -->
+                <!-- {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         <ul class="flash-messages">
                             {% for category, message in messages %}
@@ -35,7 +37,8 @@ function closeForgotPasswordModal() {
                             {% endfor %}
                         </ul>
                     {% endif %}
-                {% endwith %}
+                {% endwith %} -->
+
                 <form method="POST" action="/login">
                     <label for="identifier">Email or Username:</label>
                     <input type="text" id="identifier" name="identifier" required><br>

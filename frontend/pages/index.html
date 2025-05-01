@@ -18,7 +18,7 @@
             <a href="#about-section"class="navbar-button login-button">About</a>
             <a href="#grid-section"class="navbar-button login-button">Features</a>
             <a href="#team-section"class="navbar-button login-button">Team</a>
-            <a href="{{ url_for('login') }}" class="navbar-button login-button">Login</a>
+            <a href="./login.html" class="navbar-button login-button">Login</a>
             <a href="{{ url_for('register') }}" class="navbar-button">Sign Up</a>
         </div>
         <div class="hamburger-menu">
@@ -33,7 +33,7 @@
         <a href="#about-section">About</a>
         <a href="#grid-section">Features</a>
         <a href="#team-section">Team</a>
-        <a href="{{ url_for('login') }}">Login</a>
+        <a href="./login.html">Login</a>
         <a href="{{ url_for('register') }}">Sign Up</a>
       </div>
 
@@ -209,6 +209,7 @@
         </div>
     </div>
 </section>
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const elementsToAnimate = document.querySelectorAll("[data-animate]");
