@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeCrypt - Register</title>
+    <link rel="stylesheet" href="../styles/loginregister.css">
+</head>
+<body>
+    <div class="outer-box">
+        <div class="inner-box-1">
+            <div class="login-box">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="login-logo">
+                <h2>Register</h2>
+                <h3>Hey, <span class="blue">Welcome</span></h3>
+                <p class="p2">Create your account to start encrypting and decrypting.</p>
+
+              
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <ul class="flash-messages">
+                            {% for category, message in messages %}
+                                <li class="{{ category }}">{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="/register">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required><br>
+
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" required><br>
+
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required><br>
+
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required><br>
+
+                    <button type="submit">Register</button>
+                </form>
+                <p class="p1">Already have an account? <a href="/login">Login here</a>.</p>
+            </div>
+        </div>
+
+        <div class="inner-box-2">
+            <div class="description-box">
+                <div class="text">
+                    <h3>Digital<br>platform for</h3>
+                    <h4>encrypting<br>and decrypting.</h4>
+                    <p>Encrypt It, Decrypt It,<br>Keep It Safe with CodeCrypt</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
