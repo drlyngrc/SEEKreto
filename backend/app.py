@@ -264,6 +264,95 @@ def contacts():
 
     return render_template('contacts.html', email=email, username=username, name=name)
 
+@app.route('/allhistory', methods=['GET'])
+def all_history():
+   
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if not user_id:
+        flash("Please log in to view your history.")
+        return redirect(url_for('login'))
+
+
+    cipher_type = request.args.get('cipher_type', '')
+    sort_order = request.args.get('sort_order', 'recent')  
+
+    cipher_filter = ""
+    if cipher_type:
+        cipher_filter = "AND c.type_of_tool = %s"
+    
+   
+    order_by = "ORDER BY h.date_time DESC" if sort_order == 'recent' else "ORDER BY h.date_time ASC"
+
+    
+    query = f'''
+    SELECT h.date_time, h.crypt_id, h.mode_id, h.input, h.output, h.shift, h.key, h.a_value, h.b_value, h.rail, c.type_of_tool, co.type_of_conversion
+    FROM history h
+    JOIN ciphers c ON h.crypt_id = c.crypt_id
+    JOIN conversion co ON h.mode_id = co.mode_id
+    WHERE h.user_id = %s {cipher_filter}
+    {order_by}
+    '''
+    
+   
+    params = (user_id,)
+    if cipher_type:
+        params += (cipher_type,)
+    
+    cursor.execute(query, params)
+    history_records = cursor.fetchall()
+
+
+    history = []
+    for record in history_records:
+        conversion_type = record[10]
+        mode_name = record[11]
+
+        history_entry = {
+            'timestamp': record[0],
+            'conversion_type': conversion_type,
+            'mode_type': mode_name,
+            'input': record[3],
+            'output': record[4]
+        }
+
+        if record[5] is not None:
+            history_entry['shift'] = record[5]
+        if record[6] and record[6] != 'n/a':
+            history_entry['key'] = record[6]
+        if record[7] is not None:
+            history_entry['a_value'] = record[7]
+        if record[8] is not None:
+            history_entry['b_value'] = record[8]
+        if record[9] is not None:
+            history_entry['rail'] = record[9]
+
+        
+        history.append(history_entry)
+
+   
+    return render_template('allhistory.html', history=history, email=email, username=username, name=name)
 
 @app.route('/logout')
 def logout():
