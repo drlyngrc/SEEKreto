@@ -29,7 +29,7 @@ function closeForgotPasswordModal() {
                 <p class="p2">Enter the information you entered while registering.</p>
 
                 <!-- Edit this part -->
-                <!-- {% with messages = get_flashed_messages(with_categories=true) %}
+                {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         <ul class="flash-messages">
                             {% for category, message in messages %}
@@ -37,7 +37,7 @@ function closeForgotPasswordModal() {
                             {% endfor %}
                         </ul>
                     {% endif %}
-                {% endwith %} -->
+                {% endwith %}
 
                 <form method="POST" action="/login">
                     <label for="identifier">Email or Username:</label>
@@ -49,7 +49,7 @@ function closeForgotPasswordModal() {
                     <button type="submit">Login</button>
                 </form>
                 <p class="p1">Forgot your password? <a href="#" onclick="openForgotPasswordModal()">Click here</a></p>
-                <p class="p1-regis">Don't have an account? <a href="./register.html">Register here</a>.</p>
+                <p class="p1-regis">Don't have an account? <a href="./register">Register here</a>.</p>
             </div>
         </div>
 
