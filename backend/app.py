@@ -544,6 +544,153 @@ def binary_code():
 
     return render_template('binary.html', result=result, email=email, username=username, name=name, user_id=user_id)
 
+@app.route('/binary', methods=['GET', 'POST'])
+def binary_code():
+    result = ""
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if request.method == 'POST':
+        user_id = session.get('user_id')
+        if not user_id:
+            return redirect(url_for('login'))
+        
+        mode = request.form.get('mode')
+        input_text = request.form.get('input_text', '')
+        crypt_id = 'Binary Encoding' 
+        if mode == 'toBinary':
+            mode_id = 'Text to Binary'
+            result = ' '.join(format(ord(char), '08b') for char in input_text)
+        elif mode == 'toText':
+            mode_id = 'Binary to Text'
+            try:
+                result = ''.join(chr(int(binary, 2)) for binary in input_text.split())
+            except ValueError:
+                result = "Error. Invalid input. Please enter again."
+
+        insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, input_text, result)
+  
+
+    return render_template('binary.html', result=result, email=email, username=username, name=name, user_id=user_id)
+
+def affine_encrypt(text, a, b):
+    result = ""
+    for char in text:
+        if char.isalpha():
+            shift_base = 65 if char.isupper() else 97
+            encrypted_char = chr(((a * (ord(char) - shift_base) + b) % 26) + shift_base)
+            result += encrypted_char
+        else:
+            result += char 
+    return result
+
+
+def affine_decrypt(text, a, b):
+    result = ""
+    a_inv = None
+    
+    for i in range(26):
+        if (a * i) % 26 == 1:
+            a_inv = i
+            break
+
+    if a_inv is None:
+        raise ValueError("The 'a' value must be coprime to 26.")
+
+    for char in text:
+        if char.isalpha():
+            shift_base = 65 if char.isupper() else 97
+   
+            decrypted_char = (a_inv * ((ord(char) - shift_base - b) % 26)) % 26 + shift_base
+            result += chr(decrypted_char) 
+        else:
+            result += char 
+
+    return result
+
+
+@app.route('/affine', methods=['GET', 'POST'])
+def affine_cipher():
+    result = ""
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if request.method == 'POST':
+        if not user_id:
+            return redirect(url_for('login'))
+
+        mode = request.form.get('mode')
+        input_text = request.form.get('input_text', '')
+        a_value = int(request.form.get('a_value', '1'))
+        b_value = int(request.form.get('b_value', '0'))
+
+    
+        a_value = a_value % 26
+        if a_value not in [1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25]:
+            result = "The 'a' value must be an odd number that is coprime to 26."
+        else:
+    
+            if b_value < 1:
+                b_value = 1 
+
+            try:
+              
+                if mode == 'encrypt':
+                    result = affine_encrypt(input_text, a_value, b_value)
+                elif mode == 'decrypt':
+                    result = affine_decrypt(input_text, a_value, b_value)
+
+               
+                mode_id = 'Text to Affine Cipher' if mode == 'encrypt' else 'Affine Cipher to Text'
+                crypt_id = 'Affine Cipher'
+
+             
+                insert_history(user_id, crypt_id, mode_id, a_value, b_value, None, None, None, input_text, result)
+
+            except ValueError as e:
+                result = str(e)  
+
+    return render_template('affine.html', result=result, email=email, username=username, name=name, user_id=user_id)
+
+
 @app.route('/logout')
 def logout():
     session.pop('username', None)
