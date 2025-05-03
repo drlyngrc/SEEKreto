@@ -91,7 +91,7 @@ def login():
 			if check_password_hash(stored_hashed_password, password):
 				session['user_id'] = user[0]  
 				session['username'] = user[3]  
-                
+	
 				return redirect(url_for('homepage'))
 			else:
 				flash('Invalid email/username or password', 'danger')
@@ -99,6 +99,48 @@ def login():
 			flash('Invalid email/username or password', 'danger')
 
 	return render_template('login.html')
+
+@app.route('/homepage')
+def homepage():
+    if 'user_id' not in session:
+        return redirect(url_for('login')) 
+
+    user_id = session['user_id']
+    username = session['username']
+    
+
+    cursor.execute(
+    "SELECT email FROM users WHERE user_id = %s", (user_id,)
+    )
+    result = cursor.fetchone()
+
+    if result:  
+        email = result[0]  
+    else:
+        email = 'Error fetching.'  
+
+    
+    cursor.execute(
+    "SELECT name FROM users WHERE user_id = %s", (user_id,)
+    )
+    result_name = cursor.fetchone()
+
+    if result_name:  
+        name = result_name[0]  
+    else:
+        name = 'Error fetching.' 
+    
+   
+    # cursor.execute(
+    #     "SELECT crypt_id FROM favorites WHERE user_id = %s", (user_id,)
+    # )
+    # favorites = cursor.fetchall()
+
+    
+    # favorite_ciphers = {favorite[0] for favorite in favorites}
+    # print("Favorite Ciphers:", favorite_ciphers)
+    
+    return render_template('homepage.html', username=username, email=email, name=name, user_id=user_id) # favorite_ciphers=favorite_ciphers
 
 
 if __name__ == '__main__':
