@@ -430,6 +430,20 @@ def atbash():
 
     return render_template('atbash.html', result=result, email=email, username=username, name=name, user_id=user_id)
 
+def caesar_encrypt(text, shift):
+    encrypted = ""
+    for char in text:
+        if char.isalpha():
+            shift_base = 65 if char.isupper() else 97
+            encrypted += chr((ord(char) - shift_base + shift) % 26 + shift_base)
+        else:
+            encrypted += char
+    return encrypted
+
+def caesar_decrypt(text, shift):
+    return caesar_encrypt(text, -shift)
+
+
 @app.route('/logout')
 def logout():
     session.pop('username', None)
