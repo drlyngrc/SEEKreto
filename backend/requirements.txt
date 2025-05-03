@@ -3,3 +3,4 @@ flask-mail
 mysql-connector-python
 werkzeug
 itsdangerous
+mysql-connector-python

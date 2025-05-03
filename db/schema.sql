@@ -1,0 +1,11 @@
+CREATE DATABASE seekreto;
+
+USE seekreto;
+
+CREATE TABLE users (
+    user_id VARCHAR(10) PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(1000) NOT NULL
+);

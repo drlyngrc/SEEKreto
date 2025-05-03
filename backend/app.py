@@ -9,14 +9,14 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 import random
 import string
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='../frontend/templates')
 app.secret_key = os.urandom(24)
 s = URLSafeTimedSerializer(app.secret_key) 
 
 db = mysql.connector.connect(
     host="localhost",
     user="root",  
-    password="",  
+    password="admin",  
     database="seekreto" 
 )
 cursor = db.cursor()
@@ -78,6 +78,7 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+	
 	if request.method == 'POST':
 		identifier = request.form['identifier']
 		password = request.form['password']
@@ -98,3 +99,7 @@ def login():
 			flash('Invalid email/username or password', 'danger')
 
 	return render_template('login.html')
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
