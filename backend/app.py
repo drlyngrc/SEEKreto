@@ -143,5 +143,43 @@ def homepage():
     return render_template('homepage.html', username=username, email=email, name=name, user_id=user_id) # favorite_ciphers=favorite_ciphers
 
 
+@app.route('/contacts')
+def contacts():
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    return render_template('contacts.html', email=email, username=username, name=name)
+
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    flash('You have been logged out.', 'success')
+    session.clear()
+    return redirect(url_for('login'))
+
+
 if __name__ == '__main__':
     app.run(debug=True)
