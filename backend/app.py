@@ -354,6 +354,82 @@ def all_history():
    
     return render_template('allhistory.html', history=history, email=email, username=username, name=name)
 
+def atbash_cipher(text):
+    alphabet_upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    reversed_alphabet_upper = 'ZYXWVUTSRQPONMLKJIHGFEDCBA'
+    alphabet_lower = 'abcdefghijklmnopqrstuvwxyz'
+    reversed_alphabet_lower = 'zyxwvutsrqponmlkjihgfedcba'
+    result = ''
+
+    for char in text:
+        if char in alphabet_upper:
+            index = alphabet_upper.index(char)
+            converted_char = reversed_alphabet_upper[index]
+            result += converted_char
+        elif char in alphabet_lower:
+            index = alphabet_lower.index(char)
+            converted_char = reversed_alphabet_lower[index]
+            result += converted_char
+        else:
+            result += char
+    return result
+
+
+@app.route('/atbash', methods=['GET', 'POST'])
+def atbash():
+    result = ""
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if request.method == 'POST':
+       
+        user_id = session.get('user_id')
+        if not user_id:
+            return redirect(url_for('login'))
+        
+       
+        mode = request.form.get('mode')
+        
+       
+        if not mode:
+            flash("Please select an option before entering text.")
+            return redirect(url_for('atbash'))  
+
+        
+        if mode == 'toCipher':
+            mode_id = 'Text to Atbash Cipher'
+        elif mode == 'toText':
+            mode_id = 'Atbash Cipher to Text'
+
+        text = request.form['input_text']
+
+        result = atbash_cipher(text)
+
+        crypt_id = 'Atbash Cipher' 
+     
+        insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, text, result)
+
+    return render_template('atbash.html', result=result, email=email, username=username, name=name, user_id=user_id)
+
 @app.route('/logout')
 def logout():
     session.pop('username', None)
