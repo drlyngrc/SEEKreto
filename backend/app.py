@@ -107,10 +107,9 @@ def homepage():
 
     user_id = session['user_id']
     username = session['username']
-    
 
     cursor.execute(
-    "SELECT email FROM users WHERE user_id = %s", (user_id,)
+        "SELECT email FROM users WHERE user_id = %s", (user_id,)
     )
     result = cursor.fetchone()
 
@@ -119,9 +118,8 @@ def homepage():
     else:
         email = 'Error fetching.'  
 
-    
     cursor.execute(
-    "SELECT name FROM users WHERE user_id = %s", (user_id,)
+        "SELECT name FROM users WHERE user_id = %s", (user_id,)
     )
     result_name = cursor.fetchone()
 
@@ -129,19 +127,113 @@ def homepage():
         name = result_name[0]  
     else:
         name = 'Error fetching.' 
-    
-   
-    # cursor.execute(
-    #     "SELECT crypt_id FROM favorites WHERE user_id = %s", (user_id,)
-    # )
-    # favorites = cursor.fetchall()
 
-    
-    # favorite_ciphers = {favorite[0] for favorite in favorites}
-    # print("Favorite Ciphers:", favorite_ciphers)
-    
-    return render_template('homepage.html', username=username, email=email, name=name, user_id=user_id) # favorite_ciphers=favorite_ciphers
+    cursor.execute(
+        "SELECT crypt_id FROM favorites WHERE user_id = %s", (user_id,)
+    )
+    favorites = cursor.fetchall()
 
+    favorite_ciphers = {favorite[0] for favorite in favorites}
+    
+    return render_template('homepage.html', username=username, email=email, name=name, 
+                          user_id=user_id, favorite_ciphers=favorite_ciphers)
+
+@app.route('/favorites')
+def favorites():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    username = session.get('username', 'Guest')
+    
+    cursor.execute("SELECT email, name FROM users WHERE user_id = %s", (user_id,))
+    user_details = cursor.fetchone()
+    
+    if user_details:
+        email = user_details[0]
+        name = user_details[1]
+    else:
+        email = 'Error fetching'
+        name = 'Error fetching'
+    
+    cursor.execute("""
+        SELECT 
+            c.type_of_tool, 
+            f.description, 
+            f.icon_text, 
+            f.href
+        FROM 
+            favorites f
+        JOIN 
+            ciphers c ON f.crypt_id = c.crypt_id
+        WHERE 
+            f.user_id = %s
+    """, (user_id,))
+    
+    favorites = cursor.fetchall()
+    
+    return render_template('favorites.html', favorites=favorites, username=username, email=email, name=name)
+
+@app.route('/toggle-favorite', methods=['POST'])
+def toggle_favorite():
+    if 'user_id' not in session:
+        return jsonify({"success": False, "message": "Not logged in"}), 401
+    
+    data = request.get_json()
+    tool_name = data.get('tool_name')
+    description = data.get('description')
+    icon_text = data.get('icon_text')
+    is_favorited = data.get('is_favorited')
+    user_id = session['user_id']
+    
+    tool_url = "/" + tool_name.lower().replace(" ", "").replace("cipher", "").strip()
+    
+    cursor.execute("SELECT crypt_id FROM ciphers WHERE type_of_tool = %s", (tool_name,))
+    crypt_id_result = cursor.fetchone()
+    
+    if not crypt_id_result:
+        return jsonify({"success": False, "message": "Cipher not found"}), 404
+    
+    crypt_id = crypt_id_result[0]
+    
+    if is_favorited:
+        try:
+            cursor.execute("SELECT MAX(fav_id) FROM favorites")
+            max_fav_id = cursor.fetchone()[0]
+            
+            if max_fav_id:
+                fav_num = int(max_fav_id[3:]) + 1
+                new_fav_id = f"FAV{fav_num:04d}"
+            else:
+                new_fav_id = "FAV0001"
+                
+            cursor.execute("""
+                INSERT INTO favorites 
+                (fav_id, user_id, crypt_id, description, icon_text, href) 
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (new_fav_id, user_id, crypt_id, description, icon_text, tool_url))
+            db.commit()
+            return jsonify({"success": True, "message": "Added to favorites"})
+        except mysql.connector.Error as e:
+            db.rollback()
+            return jsonify({"success": False, "message": f"Database error: {str(e)}"}), 500
+    else:
+        try:
+            cursor.execute("""
+                DELETE FROM favorites 
+                WHERE user_id = %s AND crypt_id = %s
+            """, (user_id, crypt_id))
+            db.commit()
+            
+            if cursor.rowcount > 0:
+                if request.referrer and 'favorites' in request.referrer:
+                    return jsonify({"success": True, "message": "Removed from favorites", "reload": True})
+                return jsonify({"success": True, "message": "Removed from favorites"})
+            else:
+                return jsonify({"success": False, "message": "Favorite not found"}), 404
+        except mysql.connector.Error as e:
+            db.rollback()
+            return jsonify({"success": False, "message": f"Database error: {str(e)}"}), 500
 
 @app.route('/contacts')
 def contacts():
