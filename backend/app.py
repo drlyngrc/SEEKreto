@@ -9,7 +9,7 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 import random
 import string
 
-app = Flask(__name__, template_folder='../frontend/templates')
+app = Flask(__name__, static_folder='../frontend/static', template_folder='../frontend/templates')
 app.secret_key = os.urandom(24)
 s = URLSafeTimedSerializer(app.secret_key) 
 
