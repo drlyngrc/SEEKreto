@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Favorites - CodeCrypt</title>
+    <title>Favorites - SEEKreto</title>
     <script>
     if (localStorage.getItem("darkmode") === "true") {
         document.body.classList.add("dark-mode");
@@ -15,7 +15,7 @@
     }
     </script>
     <script src="{{ url_for('static', filename='js/header.js') }}" defer></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='favorites.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/styles/favorites.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
@@ -184,7 +184,7 @@
                     <img src="{{ url_for('static', filename='images/logo2.png') }}" class="login-logo">
                 </a>
             </div>
-            <a id="nav-title" href="{{ url_for('homepage') }}">CodeCrypt</a>
+            <a id="nav-title" href="{{ url_for('homepage') }}">SEEKreto</a>
             <label for="nav-toggle"><span id="nav-toggle-burger"></span></label>
         </div>
         <div id="nav-content">
@@ -235,130 +235,68 @@
     </div>
 
     <script>
+        function toggleFavorite(event, toolName, description, iconClass) {
+        event.preventDefault();
         
-        function FavButton(event, toolName, description, iconText) {
-            event.preventDefault();
-            var favbtn = event.target.closest('button');
-            favbtn.classList.toggle("fav-active");
-
-            if (favbtn.classList.contains("fav-active")) {
-                favbtn.style.color = "red"; 
-            } else {
-                favbtn.style.color = ""; 
-            }
-
-            
-            var isFavorited = favbtn.classList.contains("fav-active");
-            fetch('/toggle-favorite', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    tool_name: toolName,
-                    description: description,
-                    icon_text: iconText,
-                    is_favorited: isFavorited,
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data.message); 
-            })
-            .catch(error => console.error('Error:', error));
+        const favBtn = event.target.closest('.favbtn');
+        const isFavorited = !favBtn.classList.contains('fav-active');
+        
+        favBtn.classList.toggle('fav-active');
+        
+        if (favBtn.classList.contains('fav-active')) {
+            favBtn.style.color = 'red';
+        } else {
+            favBtn.style.color = '';
         }
-      
-
-const navToggle = document.getElementById("nav-toggle"); 
-const navToggleBurger = document.getElementById("nav-toggle-burger"); 
-const parentContainer = document.querySelector(".parent-container"); 
-const cardContainer = document.querySelector(".card-container"); 
-
-
-const navbarWidthExpanded = 313;
-const navbarWidthCollapsed = 131;
-const navbarWidthExpandedEmpty = 478;
-const navbarWidthCollapsedEmpty = 389;
-const navbarWidthCollapsedEmptySmall = 99;
-const navbarRightExpanded = 40;
-const navbarRightCollapsed = 0;
-
-
-function updateCardContainerStyles() {
-  const isCollapsed = navToggle.checked;
-  const isSmallScreen = window.innerWidth <= 768; 
-
-  if (isSmallScreen) {
-    parentContainer.style.marginLeft = '';
-    parentContainer.style.marginRight = '';
-    if (cardContainer && cardContainer.classList.contains("card-container-empty")) {
-        parentContainer.style.marginLeft = isCollapsed
-    ? `${navbarWidthCollapsedEmptySmall}px`
-    : "";
-
+        
+        fetch('/toggle-favorite', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                tool_name: toolName,
+                description: description,
+                icon_text: iconClass,
+                is_favorited: isFavorited
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.message);
+            
+            if (!data.success) {
+                favBtn.classList.toggle('fav-active');
+                if (favBtn.classList.contains('fav-active')) {
+                    favBtn.style.color = 'red';
+                } else {
+                    favBtn.style.color = '';
+                }
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            favBtn.classList.toggle('fav-active');
+            if (favBtn.classList.contains('fav-active')) {
+                favBtn.style.color = 'red';
+            } else {
+                favBtn.style.color = '';
+            }
+        });
     }
 
-  } else {
-    if (cardContainer && cardContainer.classList.contains("card-container-empty")) {
-      parentContainer.style.marginLeft = isCollapsed
-        ? `${navbarWidthCollapsedEmpty}px`
-        : `${navbarWidthExpandedEmpty}px`;
-    } else {
-      
-      parentContainer.style.marginLeft = isCollapsed
-        ? `${navbarWidthCollapsed}px`
-        : `${navbarWidthExpanded}px`;
-    }
-    parentContainer.style.marginRight = `${isCollapsed ? navbarRightCollapsed : navbarRightExpanded}px`;
-    parentContainer.style.transition = "margin 0.3s ease";
-  }
-}
-
-
-function adjustLayoutForNavbar() {
-  if (window.innerWidth > 768) {
-    navToggle.addEventListener("change", updateCardContainerStyles);
-    navToggle.disabled = false;
-  } else {
-    navToggle.disabled = true;
-   
-    parentContainer.style.marginLeft = '';
-    parentContainer.style.marginRight = '';
-    
-    navToggleBurger.addEventListener('click', function() {
-      window.location.href = "{{ url_for('homepage') }}";
-    });
-  }
-}
-
-function closeNavbarOnSmallScreens() {
-  const navBar = document.getElementById("nav-bar"); 
-  const navToggle = document.getElementById("nav-toggle"); 
-  
-  if (window.innerWidth <= 768) {
-    navToggle.checked = true; 
-    navToggle.disabled = true; 
-    navBar.classList.add("show"); 
-  } else {
-    navToggle.disabled = false; 
-    navBar.classList.add("show"); 
-  }
-}
-
-window.addEventListener("load", function () {
-  closeNavbarOnSmallScreens();
-  adjustLayoutForNavbar();
-  updateCardContainerStyles(); 
-});
-
-
-window.addEventListener("resize", function () {
-  closeNavbarOnSmallScreens();
-  adjustLayoutForNavbar();
-  updateCardContainerStyles();
-});
-
-
+    document.addEventListener('DOMContentLoaded', function() {
+        const favoriteButtons = document.querySelectorAll('.favbtn');
+        
+        favoriteButtons.forEach(btn => {
+            const cryptId = btn.getAttribute('data-crypt-id');
+            if (cryptId && window.favoriteCiphers && window.favoriteCiphers.includes(cryptId)) {
+                btn.classList.add('fav-active');
+                btn.style.color = 'red';
+            }
+        });
+    });    
     </script>
 </body>
 </html>
