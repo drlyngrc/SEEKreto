@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favorites - CodeCrypt</title>
+    <script>
+    if (localStorage.getItem("darkmode") === "true") {
+        document.body.classList.add("dark-mode");
+        const darkmodeIcon = document.querySelector("#darkmode-icon");
+        if (darkmodeIcon) {
+            darkmodeIcon.classList.remove("fa-moon");
+            darkmodeIcon.classList.add("fa-sun");
+        }
+    }
+    </script>
+    <script src="{{ url_for('static', filename='js/header.js') }}" defer></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='favorites.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-right">
+            <a href="/logout" class="logout-btn">Logout</a>
+            <a href="#" class="profile-text" id="profile-icon">
+                <i class="fas fa-user-circle"></i>
+            </a>
+            
+            <div class="profile-dropdown" id="profile-dropdown">
+                <span class="account-details">Account Details</span>
+                
+                <div class="user-email">
+                    <i class="fas fa-address-card"></i>
+                    <div class="email-details">
+                        <div class="email-label">Email</div>
+                        
+                        <div id="user-email-details">{{ email }}</div> 
+                    </div>
+                </div>
+    
+                <div class="user-username">
+                    <i class="fas fa-user"></i>
+                    <div class="username-details">
+                        <div class="username-label">
+                            <a href="#" id="change-username-link" class="change-username">Change Username</a>
+                        </div>
+                        <div id="user-username-details" >{{ username }}</div> 
+                    </div>
+                </div>
+             
+                <div id="changeUsernameModal" class="modal">
+                    <div class="modal-content">
+                        <h2>Change Username</h2>
+                        <form id="changeUsernameForm" method="POST" action="/changeusername">
+                        <label for="currentUsername">Current Username:</label>
+                        <input type="text" id="currentUsername" value="{{ username }}" readonly disabled><br>
+
+                        <label for="newUserame">Enter New Username:</label>
+                        <input type="text" id="newUsername" name="newUsername" required><br>
+
+                        <div class="flash-messages">
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                            <ul>
+                            {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                            {% endfor %}
+                            </ul>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+
+                    <div class="modal-buttons">
+                        <button type="submit" class="confirm-btn">Confirm</button>
+                        <button type="button" class="cancel-btn" id="cancelBtn1">Close</button>
+                    </div>
+                    </form>
+                    </div>
+                </div>
+                <div class="user-name">
+                    <i class="fas fa-pencil-alt"></i>
+                    <div class="name-details">
+                        <div class="name-label">
+                            <a href="#" id="change-name-link" class="change-name">Change Name</a>
+                        </div>
+                        <div id="user-name-details" >{{ name }}</div> 
+                    </div>
+                </div>
+
+                 <div id="changeNameModal" class="modal">
+                    <div class="modal-content">
+                        <h2>Change Name</h2>
+                        <form id="changeNameForm" method="POST" action="/changename">
+                            <label for="currentName">Current name:</label>
+                            <input type="text" id="currentName" value="{{ name }}" readonly disabled><br>
+                            
+
+                        <label for="newName">Enter new name:</label>
+                        <input type="text" id="newName" name="newName" required><br>
+
+                       <div class="flash-messages-name">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                        <ul>
+                        {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+
+                    <div class="modal-buttons">
+                        <button type="submit" class="confirm-btn">Confirm</button>
+                        <button type="button" class="cancel-btn" id="cancelBtn2">Close</button>
+                    </div>
+                    </form>
+                    </div>
+                </div>
+
+                <div class="user-password">
+                <a href="#" id="change-password-link" class="change-password">
+                    <i class="fas fa-lock"></i> Change Password
+                </a>
+                </div>
+
+                <div id="changePasswordModal" class="modal">
+                    <div class="modal-content">
+                        <h2>Change Password</h2>
+                        <form id="changePasswordForm" method="POST" action="/changepassword">
+                        <label for="currentPassword">Enter current password:</label>
+                        <input type="password" id="currentPassword" name="currentPassword" required><br>
+
+                        <label for="newPassword">Enter new password:</label>
+                        <input type="password" id="newPassword" name="newPassword" required><br>
+
+                        <label for="confirmPassword">Confirm new password:</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required><br>
+
+                       
+                        <div class="flash-messages-pw">
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                            <ul>
+                            {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                            {% endfor %}
+                            </ul>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+
+                    <div class="modal-buttons">
+                        <button type="submit" class="confirm-btn">Confirm</button>
+                        <button type="button" class="cancel-btn" id="cancelBtn3">Close</button>
+                    </div>
+                    </form>
+                    </div>
+                </div>
+                <div class = "user-dark-mode">     <a href="#" id="darkmode-toggle">
+                    <i class="fas fa-moon" id="darkmode-icon"></i> <span class="dark-mode-text">Dark Mode</span>
+                </a>
+                </div> 
+                
+                <div class="user-contacts">
+                <a href="{{ url_for('contacts') }}">
+                    <i class="fas fa-envelope"></i> <span class="contacts-text">Contact Us</span>
+                </a>
+                </div>
+                
+                <div class="user-logout">
+                <a href="/logout">
+                    <i class="fas fa-arrow-left"></i><span class="logout-text">Logout</span>
+                </a>
+                </div>
+            </div>
+        </div>    
+    </header>
+    <div id="nav-bar">
+        <input id="nav-toggle" type="checkbox"/>
+        <div id="nav-header">
+            <div id="nav-logo">
+                <a href="{{ url_for('homepage') }}">
+                    <img src="{{ url_for('static', filename='images/logo2.png') }}" class="login-logo">
+                </a>
+            </div>
+            <a id="nav-title" href="{{ url_for('homepage') }}">CodeCrypt</a>
+            <label for="nav-toggle"><span id="nav-toggle-burger"></span></label>
+        </div>
+        <div id="nav-content">
+            <a href="/affine" class="nav-button"><i class="fas fa-align-left"></i><span>Affine Cipher</span></a>
+            <a href="/atbash" class="nav-button"><i class="fas fa-arrow-left"></i><span>Atbash Cipher</span></a>
+            <a href="/base64" class="nav-button"><i class="fas fa-code"></i><span>Base64 Encoding</span></a>
+            <a href="/binary" class="nav-button"><i class="fas fa-circle"></i><span>Binary Encoding</span></a>
+            <a href="/caesar" class="nav-button"><i class="fas fa-asterisk"></i><span>Caesar Cipher</span></a>
+            <a href="/hexadecimal" class="nav-button"><i class="fas fa-hashtag"></i><span>Hexadecimal Encoding</span></a>
+            <a href="/morse" class="nav-button"><i class="fas fa-wave-square"></i><span>Morse Code</span></a>
+            <a href="/railfence" class="nav-button"><i class="fas fa-random"></i><span>Rail Fence Cipher</span></a>
+            <a href="/rot13" class="nav-button"><i class="fas fa-sync-alt"></i><span>ROT13 Cipher</span></a>
+            <a href="/vigenere" class="nav-button"><i class="fas fa-font"></i><span>Vigenère Cipher</span></a>
+            <hr/>
+            <a href="/favorites" class="nav-button active"><i class="fas fa-heart"></i><span>Favorites</span></a>
+            <a href="/allhistory" class="nav-button"><i class="fas fa-history"></i><span>History</span></a>
+            <div id="nav-content-highlight"></div>
+        </div>
+    </div>
+
+    <div class="parent-container">
+        <div class="title-container">
+            <h1>Favorites</h1>
+        </div>
+
+        <div class="card-container {% if not favorites %}card-container-empty{% endif %}">
+            {% if favorites %}
+                {% for fav in favorites %}
+                    <a href="/{{ fav[3] | lower | trim('/') }}" class="card">
+                        <i class="{{ fav[2] }} icon"></i>
+                        <div class="text">
+                            <h4>{{ fav[0] }}</h4> 
+                            <button onclick="FavButton(event, '{{ fav[0] }}', '{{ fav[1] }}', '{{ fav[2] }}')" 
+                                    class="favbtn fav-active" style="color: red;">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                            <p>{{ fav[1] }}</p> 
+                        </div>
+                    </a>
+                {% endfor %}
+            {% else %}
+                <h2>
+                    You don't have any favorites yet. Add some from the <a href="{{ url_for('homepage') }}">homepage</a>!
+                </h2>
+            {% endif %}
+        </div>
+        
+    </div>
+
+    <script>
+        
+        function FavButton(event, toolName, description, iconText) {
+            event.preventDefault();
+            var favbtn = event.target.closest('button');
+            favbtn.classList.toggle("fav-active");
+
+            if (favbtn.classList.contains("fav-active")) {
+                favbtn.style.color = "red"; 
+            } else {
+                favbtn.style.color = ""; 
+            }
+
+            
+            var isFavorited = favbtn.classList.contains("fav-active");
+            fetch('/toggle-favorite', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    tool_name: toolName,
+                    description: description,
+                    icon_text: iconText,
+                    is_favorited: isFavorited,
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message); 
+            })
+            .catch(error => console.error('Error:', error));
+        }
+      
+
+const navToggle = document.getElementById("nav-toggle"); 
+const navToggleBurger = document.getElementById("nav-toggle-burger"); 
+const parentContainer = document.querySelector(".parent-container"); 
+const cardContainer = document.querySelector(".card-container"); 
+
+
+const navbarWidthExpanded = 313;
+const navbarWidthCollapsed = 131;
+const navbarWidthExpandedEmpty = 478;
+const navbarWidthCollapsedEmpty = 389;
+const navbarWidthCollapsedEmptySmall = 99;
+const navbarRightExpanded = 40;
+const navbarRightCollapsed = 0;
+
+
+function updateCardContainerStyles() {
+  const isCollapsed = navToggle.checked;
+  const isSmallScreen = window.innerWidth <= 768; 
+
+  if (isSmallScreen) {
+    parentContainer.style.marginLeft = '';
+    parentContainer.style.marginRight = '';
+    if (cardContainer && cardContainer.classList.contains("card-container-empty")) {
+        parentContainer.style.marginLeft = isCollapsed
+    ? `${navbarWidthCollapsedEmptySmall}px`
+    : "";
+
+    }
+
+  } else {
+    if (cardContainer && cardContainer.classList.contains("card-container-empty")) {
+      parentContainer.style.marginLeft = isCollapsed
+        ? `${navbarWidthCollapsedEmpty}px`
+        : `${navbarWidthExpandedEmpty}px`;
+    } else {
+      
+      parentContainer.style.marginLeft = isCollapsed
+        ? `${navbarWidthCollapsed}px`
+        : `${navbarWidthExpanded}px`;
+    }
+    parentContainer.style.marginRight = `${isCollapsed ? navbarRightCollapsed : navbarRightExpanded}px`;
+    parentContainer.style.transition = "margin 0.3s ease";
+  }
+}
+
+
+function adjustLayoutForNavbar() {
+  if (window.innerWidth > 768) {
+    navToggle.addEventListener("change", updateCardContainerStyles);
+    navToggle.disabled = false;
+  } else {
+    navToggle.disabled = true;
+   
+    parentContainer.style.marginLeft = '';
+    parentContainer.style.marginRight = '';
+    
+    navToggleBurger.addEventListener('click', function() {
+      window.location.href = "{{ url_for('homepage') }}";
+    });
+  }
+}
+
+function closeNavbarOnSmallScreens() {
+  const navBar = document.getElementById("nav-bar"); 
+  const navToggle = document.getElementById("nav-toggle"); 
+  
+  if (window.innerWidth <= 768) {
+    navToggle.checked = true; 
+    navToggle.disabled = true; 
+    navBar.classList.add("show"); 
+  } else {
+    navToggle.disabled = false; 
+    navBar.classList.add("show"); 
+  }
+}
+
+window.addEventListener("load", function () {
+  closeNavbarOnSmallScreens();
+  adjustLayoutForNavbar();
+  updateCardContainerStyles(); 
+});
+
+
+window.addEventListener("resize", function () {
+  closeNavbarOnSmallScreens();
+  adjustLayoutForNavbar();
+  updateCardContainerStyles();
+});
+
+
+    </script>
+</body>
+</html>

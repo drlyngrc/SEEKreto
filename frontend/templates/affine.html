@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affine Cipher</title>
+    <script>
+        if (localStorage.getItem("darkmode") === "true") {
+                   document.body.classList.add("dark-mode");
+                   const darkmodeIcon = document.querySelector("#darkmode-icon");
+                   if (darkmodeIcon) {
+                       darkmodeIcon.classList.remove("fa-moon");
+                       darkmodeIcon.classList.add("fa-sun");
+                   }
+               }
+       
+       function toggleInput() {
+           const encryptRadio = document.getElementById('encrypt');
+           const decryptRadio = document.getElementById('decrypt');
+           const inputTextArea = document.getElementById('input_text');
+           const labels = document.querySelectorAll('.nav-item');
+           
+           if (encryptRadio.checked || decryptRadio.checked) {
+               inputTextArea.removeAttribute('disabled');
+           } else {
+               inputTextArea.setAttribute('disabled', 'disabled');
+           }
+       
+           labels.forEach(label => {
+               label.classList.remove('active');
+           });
+       
+           const selectedRadio = document.querySelector('input[name="mode"]:checked');
+       
+           const selectedLabel = document.querySelector(`label[for="${selectedRadio.id}"]`);
+           
+           selectedLabel.classList.add('active');
+       }
+       
+       document.addEventListener('DOMContentLoaded', () => {
+           const navButtons = document.querySelectorAll('.nav-button');
+          
+           function highlightActivePage() {
+               navButtons.forEach(button => {
+                   if (button.href === window.location.href) {
+                       button.classList.add('active');
+                   } else {
+                       button.classList.remove('active');
+                   }
+               });
+           }
+       
+       
+           highlightActivePage();
+       
+           navButtons.forEach(button => {
+               button.addEventListener('mouseenter', () => {
+                   button.style.color = 'blue';
+                   const icon = button.querySelector('i');
+                   if (icon) {
+                       icon.style.color = 'blue';
+                   }
+               });
+       
+       
+               button.addEventListener('mouseleave', () => {
+                   if (!button.classList.contains('active')) {
+                       button.style.color = ''; 
+                       const icon = button.querySelector('i');
+                       if (icon) {
+                           icon.style.color = '';
+                       }
+                   }
+               });
+       
+               button.addEventListener('click', () => {
+                   navButtons.forEach(b => b.classList.remove('active')); 
+                   button.classList.add('active'); 
+                   highlightActivePage(); 
+               });
+           });
+       });
+       </script>
+    <script src="{{ url_for('static', filename='js/header.js') }}" defer></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='ciphers.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+   
+   
+</head>
+<body>
+    <header>
+        <div class="header-right">
+            <a href="/logout" class="logout-btn">Logout</a>
+            <a href="#" class="profile-text" id="profile-icon">
+                <i class="fas fa-user-circle"></i> 
+            </a>
+            <div class="profile-dropdown" id="profile-dropdown">
+                <span class="account-details">Account Details</span>
+                
+                <div class="user-email">
+                    <i class="fas fa-address-card"></i>
+                    <div class="email-details">
+                        <div class="email-label">Email</div>
+                        
+                        <div id="user-email-details">{{ email }}</div> 
+                    </div>
+                </div>
+    
+                <div class="user-username">
+                    <i class="fas fa-user"></i>
+                    <div class="username-details">
+                        <div class="username-label">
+                            <a href="#" id="change-username-link" class="change-username">Change Username</a>
+                        </div>
+                        <div id="user-username-details" >{{ username }}</div> 
+                    </div>
+                </div>
+                
+                <div id="changeUsernameModal" class="modal">
+                    <div class="modal-content">
+                        <h2>Change Username</h2>
+                        <form id="changeUsernameForm" method="POST" action="/changeusername">
+                        <label for="currentUsername">Current Username:</label>
+                        <input type="text" id="currentUsername" value="{{ username }}" readonly disabled><br>
+
+                        <label for="newUserame">Enter New Username:</label>
+                        <input type="text" id="newUsername" name="newUsername" required><br>
+
+                        <div class="flash-messages">
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                            <ul>
+                            {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                            {% endfor %}
+                            </ul>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+
+                    <div class="modal-buttons">
+                        <button type="submit" class="confirm-btn">Confirm</button>
+                        <button type="button" class="cancel-btn" id="cancelBtn1">Close</button>
+                    </div>
+                    </form>
+                    </div>
+                </div>
+
+                <div class="user-name">
+                    <i class="fas fa-pencil-alt"></i>
+                    <div class="name-details">
+                        <div class="name-label">
+                            <a href="#" id="change-name-link" class="change-name">Change Name</a>
+                        </div>
+                        <div id="user-name-details" >{{ name }}</div> 
+                    </div>
+                </div>
+
+                 <div id="changeNameModal" class="modal">
+                    <div class="modal-content">
+                        <h2>Change Name</h2>
+                        <form id="changeNameForm" method="POST" action="/changename">
+                            <label for="currentName">Current name:</label>
+                            <input type="text" id="currentName" value="{{ name }}" readonly disabled><br>
+                            
+
+                        <label for="newName">Enter new name:</label>
+                        <input type="text" id="newName" name="newName" required><br>
+
+                       <div class="flash-messages-name">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                        <ul>
+                        {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+
+                    <div class="modal-buttons">
+                        <button type="submit" class="confirm-btn">Confirm</button>
+                        <button type="button" class="cancel-btn" id="cancelBtn2">Close</button>
+                    </div>
+                    </form>
+                    </div>
+                </div>
+
+                <div class="user-password">
+                <a href="#" id="change-password-link" class="change-password">
+                    <i class="fas fa-lock"></i> Change Password
+                </a>
+                </div>
+
+                <div id="changePasswordModal" class="modal">
+                    <div class="modal-content">
+                        <h2>Change Password</h2>
+                        <form id="changePasswordForm" method="POST" action="/changepassword">
+                        <label for="currentPassword">Enter current password:</label>
+                        <input type="password" id="currentPassword" name="currentPassword" required><br>
+
+                        <label for="newPassword">Enter new password:</label>
+                        <input type="password" id="newPassword" name="newPassword" required><br>
+
+                        <label for="confirmPassword">Confirm new password:</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required><br>
+
+                        <div class="flash-messages-pw">
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                            <ul>
+                            {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                            {% endfor %}
+                            </ul>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+
+                    <div class="modal-buttons">
+                        <button type="submit" class="confirm-btn">Confirm</button>
+                        <button type="button" class="cancel-btn" id="cancelBtn3">Close</button>
+                    </div>
+                    </form>
+                    </div>
+                </div>
+                <div class = "user-dark-mode">     <a href="#" id="darkmode-toggle">
+                    <i class="fas fa-moon" id="darkmode-icon"></i> <span class="dark-mode-text">Dark Mode</span>
+                </a>
+                </div> 
+                
+                <div class="user-contacts">
+                <a href="{{ url_for('contacts') }}">
+                    <i class="fas fa-envelope"></i> <span class="contacts-text">Contact Us</span>
+                </a>
+                </div>
+                
+                <div class="user-logout">
+                <a href="/logout">
+                    <i class="fas fa-arrow-left"></i><span class="logout-text">Logout</span>
+                </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="nav-bar">
+        <input id="nav-toggle" type="checkbox"/>
+        <div id="nav-header">
+           <div id="nav-logo">
+            <a href="{{ url_for('homepage') }}">
+                <img src="{{ url_for('static', filename='images/logo2.png') }}" class="login-logo">
+            </a>
+           </div>
+           <a id="nav-title" href="{{ url_for('homepage') }}">CodeCrypt</a>
+            <label for="nav-toggle"><span id="nav-toggle-burger"></span></label>
+        </div>
+        <div id="nav-content">
+            <a href="/affine" class="nav-button active"><i class="fas fa-align-left"></i><span>Affine Cipher</span></a>
+            <a href="/atbash" class="nav-button"><i class="fas fa-arrow-left"></i><span>Atbash Cipher</span></a>
+            <a href="/base64" class="nav-button"><i class="fas fa-code"></i><span>Base64 Encoding</span></a>
+            <a href="/binary" class="nav-button"><i class="fas fa-circle"></i><span>Binary Encoding</span></a>
+            <a href="/caesar" class="nav-button"><i class="fas fa-asterisk"></i><span>Caesar Cipher</span></a>
+            <a href="/hexadecimal" class="nav-button"><i class="fas fa-hashtag"></i><span>Hexadecimal Encoding</span></a>
+            <a href="/morse" class="nav-button"><i class="fas fa-wave-square"></i><span>Morse Code</span></a>
+            <a href="/railfence" class="nav-button"><i class="fas fa-random"></i><span>Rail Fence Cipher</span></a>
+            <a href="/rot13" class="nav-button"><i class="fas fa-sync-alt"></i><span>ROT13 Cipher</span></a>
+            <a href="/vigenere" class="nav-button"><i class="fas fa-font"></i><span>Vigenère Cipher</span></a>
+            <hr/>
+            <a href="/favorites" class="nav-button"><i class="fas fa-heart"></i><span>Favorites</span></a>
+            <a href="/allhistory" class="nav-button"><i class="fas fa-history"></i><span>History</span></a>
+            <div id="nav-content-highlight"></div>
+        </div>
+    </div>
+
+
+    <div class="parent-container">
+        <div class="title-container">
+            <h1>Affine Cipher</h1>
+        </div>
+    
+    <div class="converter">
+        <nav class="navbar">
+            <div class="options">
+            <div class="nav-list">
+                <form method="POST" action="/affine">
+                    <input type="radio" name="mode" id="encrypt" value="encrypt" onclick="toggleInput()" {% if request.form.get('mode') == 'encrypt' %}checked{% endif %}>
+                    <label class="nav-item" for="encrypt">Text to Affine Cipher</label>
+           
+                    <input type="radio" name="mode" id="decrypt" value="decrypt" onclick="toggleInput()" {% if request.form.get('mode') == 'decrypt' %}checked{% endif %}>
+                    <label class="nav-item" for="decrypt">Affine Cipher to Text</label>
+            </div>
+        </div>
+        
+        <div class="input-values">
+            <div class="value-container-affine-a">
+                <label class="aValue1" for="a_value">Enter 'a' value:</label>
+                <input type="number" class="" id="a_value" name="a_value" value="{{ request.form.get('a_value', '1') }}" min="1" step="2" required>
+            </div>
+            <div class="value-container">
+                <label class="aValue2" for="b_value">Enter 'b' value:</label>
+                <input type="number" id="b_value" name="b_value" value="{{ request.form.get('b_value', '1') }}" min="1" step="1" required>
+            </div>
+            <a href="{{ url_for('all_history', cipher_type='Affine Cipher') }}">
+                <button class="history-btn2" type="button">
+                    <i class="fa fa-history"></i>
+                </button>
+            </a>
+        </div>
+       
+        </nav>
+
+
+            <div class="cipher-container">
+                <div class="input-container">
+                <textarea id="input_text" name="input_text" placeholder="Please click an option first then enter your text here..." {% if request.form.get('mode') is none %}disabled{% endif %}>{{ request.form.get('input_text', '') }}</textarea>
+
+
+                <button type="submit" class="convert-btn">Convert</button><br><br>
+            </div>
+            <div class="result-container">
+                <textarea id="input_text" readonly>{{ result }}</textarea>
+            </div>
+        </div>
+    </form>
+ </div>
+</div>
+<script>
+    const navToggle = document.getElementById("nav-toggle"); 
+    const parentContainer = document.querySelector(".parent-container"); 
+    const navbarWidthExpanded = 300; 
+    const navbarWidthCollapsed = 100;
+    const navbarRightExpanded = 40;
+    const navbarRightCollapsed = 0;
+    
+    function updateCardContainerStyles() {
+      if (navToggle.checked) {
+        parentContainer.style.marginRight = `${navbarRightCollapsed}px`;
+        parentContainer.style.marginLeft = `${navbarWidthCollapsed}px`;
+        parentContainer.style.transition = "margin-left 0.3s ease";
+      } else {
+        parentContainer.style.marginRight = `${navbarRightExpanded}px`;
+        parentContainer.style.marginLeft = `${navbarWidthExpanded}px`; 
+        parentContainer.style.transition = "margin-left 0.3s ease"; 
+      }
+    }
+    
+    navToggle.addEventListener('change', updateCardContainerStyles);
+    
+    function adjustLayoutForNavbar() {
+      if (window.innerWidth > 768) {
+        navToggle.addEventListener("change", updateCardContainerStyles);
+        navToggle.disabled = false;
+      } else {
+        navToggle.checked = true; 
+        navToggle.disabled = true;
+       
+        parentContainer.style.marginLeft = ''; 
+        parentContainer.style.marginRight = ''; 
+    
+        
+        const navToggleBurger = document.getElementById("nav-toggle-burger");
+        if (navToggleBurger) {
+          navToggleBurger.addEventListener('click', function() {
+            window.location.href = "{{ url_for('homepage') }}";
+          });
+        }
+      }
+    }
+    
+    function closeNavbarOnSmallScreens() {
+      const navBar = document.getElementById("nav-bar"); 
+      
+      if (window.innerWidth <= 768) {
+        navToggle.checked = true; 
+        navToggle.disabled = true; 
+        navBar.classList.add("show"); 
+      } else {
+        navToggle.disabled = false; 
+        navBar.classList.add("show"); 
+      }
+    }
+    
+    window.addEventListener("load", function () {
+      closeNavbarOnSmallScreens();
+      adjustLayoutForNavbar();
+    });
+    
+    window.addEventListener("resize", function () {
+      closeNavbarOnSmallScreens();
+      adjustLayoutForNavbar();
+    });
+    </script>
+    
+</body>
+</html>
