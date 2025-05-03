@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <script>
+        if (localStorage.getItem("darkmode") === "true") {
+            document.body.classList.add("dark-mode");
+            const darkmodeIcon = document.querySelector("#darkmode-icon");
+            if (darkmodeIcon) {
+                darkmodeIcon.classList.remove("fa-moon");
+                darkmodeIcon.classList.add("fa-sun");
+            }
+        }
+    </script>
+    <script src="{{ url_for('static', filename='/js/header.js') }}" defer></script>
+     <link rel="stylesheet" href="{{ url_for('static', filename='/styles/homepage.css') }}">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    
+</head>
+<body>
+    <header>
+        <div class="header-right">
+            <a href="/logout" class="logout-btn">Logout</a>
+            <a href="#" class="profile-text" id="profile-icon">
+                <i class="fas fa-user-circle"></i> 
+            </a>
+         >
+            <div class="profile-dropdown" id="profile-dropdown">
+              
+                <span class="account-details">Account Details</span>
+                
+                <div class="user-email">
+                    <i class="fas fa-address-card"></i>
+                    <div class="email-details">
+                        <div class="email-label">Email</div>
+                        
+                        <div id="user-email-details">{{ email }}</div> 
+                    </div>
+                </div>
+    
+                <div class="user-username">
+                    <i class="fas fa-user"></i>
+                    <div class="username-details">
+                        <div class="username-label">
+                            <a href="#" id="change-username-link" class="change-username">Change Username</a>
+                        </div>
+                        <div id="user-username-details" >{{ username }}</div> 
+                    </div>
+                </div>
+                
+                <div id="changeUsernameModal" class="modal">
+                    <div class="modal-content">
+                        <h2>Change Username</h2>
+                        <form id="changeUsernameForm" method="POST" action="/changeusername">
+                        <label for="currentUsername">Current Username:</label>
+                        <input type="text" id="currentUsername" value="{{ username }}" readonly disabled><br>
+
+                        <label for="newUserame">Enter New Username:</label>
+                        <input type="text" id="newUsername" name="newUsername" required><br>
+
+                        <div class="flash-messages">
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                            <ul>
+                            {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                            {% endfor %}
+                            </ul>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+
+                    <div class="modal-buttons">
+                        <button type="submit" class="confirm-btn">Confirm</button>
+                        <button type="button" class="cancel-btn" id="cancelBtn1">Close</button>
+                    </div>
+                    </form>
+                    </div>
+                </div>
+
+
+                <div class="user-name">
+                    <i class="fas fa-pencil-alt"></i>
+                    <div class="name-details">
+                        <div class="name-label">
+                            <a href="#" id="change-name-link" class="change-name">Change Name</a>
+                        </div>
+                        <div id="user-name-details" >{{ name }}</div> 
+                    </div>
+                </div>
+
+                 <div id="changeNameModal" class="modal">
+                    <div class="modal-content">
+                        <h2>Change Name</h2>
+                        <form id="changeNameForm" method="POST" action="/changename">
+                            <label for="currentName">Current name:</label>
+                            <input type="text" id="currentName" value="{{ name }}" readonly disabled><br>
+                            
+
+                        <label for="newName">Enter new name:</label>
+                        <input type="text" id="newName" name="newName" required><br>
+
+                       <div class="flash-messages-name">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                        <ul>
+                        {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+
+                    <div class="modal-buttons">
+                        <button type="submit" class="confirm-btn">Confirm</button>
+                        <button type="button" class="cancel-btn" id="cancelBtn2">Close</button>
+                    </div>
+                    </form>
+                    </div>
+                </div>
+
+
+                <div class="user-password">
+                <a href="#" id="change-password-link" class="change-password">
+                    <i class="fas fa-lock"></i> Change Password
+                </a>
+                </div>
+
+                <div id="changePasswordModal" class="modal">
+                    <div class="modal-content">
+                        <h2>Change Password</h2>
+                        <form id="changePasswordForm" method="POST" action="/changepassword">
+                        <label for="currentPassword">Enter current password:</label>
+                        <input type="password" id="currentPassword" name="currentPassword" required><br>
+
+                        <label for="newPassword">Enter new password:</label>
+                        <input type="password" id="newPassword" name="newPassword" required><br>
+
+                        <label for="confirmPassword">Confirm new password:</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required><br>
+
+                        <div class="flash-messages-pw">
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                            <ul>
+                            {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                            {% endfor %}
+                            </ul>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+
+                    <div class="modal-buttons">
+                        <button type="submit" class="confirm-btn">Confirm</button>
+                        <button type="button" class="cancel-btn" id="cancelBtn3">Close</button>
+                    </div>
+                    </form>
+                    </div>
+                </div>
+                <div class = "user-dark-mode">     <a href="#" id="darkmode-toggle">
+                    <i class="fas fa-moon" id="darkmode-icon"></i> <span class="dark-mode-text">Dark Mode</span>
+                </a>
+                </div> 
+                
+                <div class="user-contacts">
+                <a href="{{ url_for('contacts') }}">
+                    <i class="fas fa-envelope"></i> <span class="contacts-text">Contact Us</span>
+                </a>
+                </div>
+                
+                <div class="user-logout">
+                <a href="/logout">
+                    <i class="fas fa-arrow-left"></i><span class="logout-text">Logout</span>
+                </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="nav-bar">
+        <input id="nav-toggle" type="checkbox"/>
+        <div id="nav-header">
+           <div id="nav-logo">
+                <a href="{{ url_for('homepage') }}">
+                <img src="{{ url_for('static', filename='images/logo2.png') }}" class="login-logo">
+                </a>
+            </div>
+            <a id="nav-title" href="{{ url_for('homepage') }}">CodeCrypt</a>
+            <label for="nav-toggle"><span id="nav-toggle-burger"></span></label>
+        </div>
+        <div id="nav-content">
+            <a href="/affine" class="nav-button"><i class="fas fa-align-left"></i><span>Affine Cipher</span></a>
+            <a href="/atbash" class="nav-button"><i class="fas fa-arrow-left"></i><span>Atbash Cipher</span></a>
+            <a href="/base64" class="nav-button"><i class="fas fa-code"></i><span>Base64 Encoding</span></a>
+            <a href="/binary" class="nav-button"><i class="fas fa-circle"></i><span>Binary Encoding</span></a>
+            <a href="/caesar" class="nav-button"><i class="fas fa-asterisk"></i><span>Caesar Cipher</span></a>
+            <a href="/hexadecimal" class="nav-button"><i class="fas fa-hashtag"></i><span>Hexadecimal Encoding</span></a>
+            <a href="/morse" class="nav-button"><i class="fas fa-wave-square"></i><span>Morse Code</span></a>
+            <a href="/railfence" class="nav-button"><i class="fas fa-random"></i><span>Rail Fence Cipher</span></a>
+            <a href="/rot13" class="nav-button"><i class="fas fa-sync-alt"></i><span>ROT13 Cipher</span></a>
+            <a href="/vigenere" class="nav-button"><i class="fas fa-font"></i><span>Vigenère Cipher</span></a>
+            <hr/>
+            <a href="/favorites" class="nav-button"><i class="fas fa-heart"></i><span>Favorites</span></a>
+            <a href="/allhistory" class="nav-button"><i class="fas fa-history"></i><span>History</span></a>
+            <div id="nav-content-highlight"></div>
+        </div>
+    </div>
+
+
+  <div class="parent-container">
+    <div class="title-container">
+        <h1>Hi, <span id="username-homepage-display">{{ username }}</span>! What do you want to convert today?</h1>
+    </div>
+
+
+    
+    <div class="card-container">
+       
+        <a href="/affine" class="card">
+            <i class="fas fa-align-left icon"></i>
+            <div class="text">
+                <h4>Affine Cipher</h4>
+                <button onclick="FavButton1(event, 'Affine Cipher', 'A substitution cipher using a linear mathematical transformation.', 'fas fa-align-left icon', '/affine')" 
+                        id="favbtn1" 
+                        class="favbtn {% if 'CC001' in favorite_ciphers %}fav-active{% endif %}">
+                    <i class="fas fa-heart"></i>
+                </button>
+                <p>A substitution cipher using a linear mathematical transformation.</p>
+            </div>
+        </a>
+        
+
+
+        <a href="/atbash" class="card">
+            <i class="fas fa-arrow-left icon"></i>
+            <div class="text">
+                <h4>Atbash Cipher</h4>
+                <button onclick = "FavButton2(event, 'Atbash Cipher', 'An ancient cipher that substitutes each letter with its opposite.', 'fas fa-arrow-left icon', '/atbash')"
+                id = "favbtn2"
+                class = "favbtn {% if 'CC002' in favorite_ciphers %}fav-active{% endif %}">
+                <i class="fas fa-heart"></i></button>
+                <p>An ancient cipher that substitutes each letter with its opposite.</p>
+            </div>
+        </a>
+
+
+        <a href="/base64" class="card">
+            <i class="fas fa-code icon"></i>
+            <div class="text">
+                <h4>Base64 Encoding</h4>
+                <button onclick = "FavButton3(event, 'Base64 Encoding', 'Encode binary data into ASCII string format using Base64.', 'fas fa-code icon', '/base64')"
+                id = "favbtn3" class = "favbtn {% if 'CC003' in favorite_ciphers %}fav-active{% endif %}">
+                <i class="fas fa-heart"></i></button>
+                <p>Encode binary data into ASCII string format using Base64.</p>
+            </div>
+        </a>
+
+
+        <a href="/binary" class="card">
+            <i class="fas fa-circle icon"></i>
+            <div class="text">
+                <h4>Binary Encoding</h4>
+                <button onclick = "FavButton4(event, 'Binary Encoding', 'Convert text into binary code representation.', 'fas fa-circle icon', '/binary')"
+                id = "favbtn4" class = "favbtn {% if 'CC004' in favorite_ciphers %}fav-active{% endif %}"><i class="fas fa-heart"></i></button>
+                <p>Convert text into binary code representation.</p>
+            </div>
+        </a>
+
+
+        <a href="/caesar" class="card">
+            <i class="fas fa-asterisk icon"></i>
+            <div class="text">
+                <h4>Caesar Cipher</h4>
+                <button onclick = "FavButton5(event, 'Caesar Cipher', 'Encrypt text by shifting characters a certain number of positions.', 'fas fa-asterisk icon', '/caesar')"
+                id = "favbtn5" class = "favbtn {% if 'CC005' in favorite_ciphers %}fav-active{% endif %}"><i class="fas fa-heart"></i></button>
+                <p>Encrypt text by shifting characters a certain number of positions.</p>
+            </div>
+        </a>
+
+
+        <a href="/hexadecimal" class="card">
+            <i class="fas fa-hashtag icon"></i>
+            <div class="text">
+                <h4>Hexadecimal Encoding</h4>
+                <button onclick = "FavButton6(event, 'Hexadecimal Encoding', 'Encode text into hexadecimal format.', 'fas fa-hashtag icon', '/hexadecimal')"
+                id = "favbtn6" class = "favbtn {% if 'CC006' in favorite_ciphers %}fav-active{% endif %}"><i class="fas fa-heart"></i></button>
+                <p>Encode text into hexadecimal format.</p>
+            </div>
+        </a>
+
+
+        <a href="/morse" class="card">
+            <i class="fas fa-wave-square icon"></i>
+            <div class="text">
+                <h4>Morse Code</h4>
+                <button onclick = "FavButton7(event, 'Morse Code', 'Convert text into Morse code signals.', 'fas fa-wave-square icon','/morse')"
+                id = "favbtn7" class = "favbtn {% if 'CC007' in favorite_ciphers %}fav-active{% endif %}"><i class="fas fa-heart"></i></button>
+                <p>Convert text into Morse code signals.</p>
+            </div>
+        </a>
+
+
+        <a href="/railfence" class="card">
+            <i class="fas fa-random icon"></i>
+            <div class="text">
+                <h4>Rail Fence Cipher</h4>
+                <button onclick = "FavButton8(event, 'Rail Fence Cipher', 'A transposition cipher that arranges characters in a zig-zag pattern.', 'fas fa-random icon', '/railfence')"
+                id = "favbtn8" class = "favbtn {% if 'CC008' in favorite_ciphers %}fav-active{% endif %}"><i class="fas fa-heart"></i></button>
+                <p>A transposition cipher that arranges characters in a zig-zag pattern.</p>
+            </div>
+        </a>
+
+
+        <a href="/rot13" class="card">
+            <i class="fas fa-sync-alt icon"></i>
+            <div class="text">
+                <h4>ROT13 Cipher</h4>
+                <button onclick = "FavButton9(event, 'ROT13 Cipher', 'A simple cipher that shifts letters by 13 places in the alphabet.', 'fas fa-sync-alt icon', '/rot13')"
+                id = "favbtn9" class = "favbtn {% if 'CC009' in favorite_ciphers %}fav-active{% endif %}"><i class="fas fa-heart"></i></button>
+                <p>A simple cipher that shifts letters by 13 places in the alphabet.</p>
+            </div>
+        </a>
+
+
+        <a href="/vigenere" class="card">
+            <i class="fas fa-font icon"></i>
+            <div class="text">
+                <h4>Vigenère Cipher</h4>
+                <button onclick = "FavButton10(event, 'Vigenère Cipher', 'A method of encrypting alphabetic text by using a simple form of polyalphabetic substitution.', 'fas fa-font icon', '/vigenere')"
+                id = "favbtn10" class = "favbtn {% if 'CC010' in favorite_ciphers %}fav-active{% endif %}"><i class="fas fa-heart"></i></button>
+                <p>A method of encrypting alphabetic text by using a simple form of polyalphabetic substitution.</p>
+            </div>
+        </a>
+    </div>
+</div>
+<script>
+    const navToggle = document.getElementById("nav-toggle"); 
+    const parentContainer = document.querySelector(".parent-container"); 
+    const navbarWidthExpanded = 300; 
+    const navbarWidthCollapsed = 100; 
+    const navbarRightExpanded = 40;
+    const navbarrightCollapsed = 0;
+
+
+const navToggleBurger = document.getElementById("nav-toggle-burger"); 
+const navbarRightCollapsed = 0;
+    
+    var favbtn = document.getElementById('favbtn');
+    
+    function FavButton1(event, toolName, description, iconText, href) {
+        
+        event.preventDefault();
+    
+        
+        var favbtn = document.getElementById("favbtn1");
+        favbtn.classList.toggle("fav-active");
+    
+        
+        if (favbtn.classList.contains("fav-active")) {
+            favbtn.style.color = "red"; 
+        } else {
+            favbtn.style.color = ""; 
+        }
+    
+        
+        var isFavorited = favbtn.classList.contains("fav-active");
+        fetch('/toggle-favorite', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                tool_name: toolName,
+                description: description,
+                icon_text: iconText,
+                is_favorited: isFavorited,
+                href: href,
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.message); 
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    function FavButton2(event, toolName, description, iconText, href) {
+        
+        event.preventDefault();
+    
+      
+        var favbtn = document.getElementById("favbtn2");
+        favbtn.classList.toggle("fav-active");
+    
+        
+        if (favbtn.classList.contains("fav-active")) {
+            favbtn.style.color = "red"; 
+        } else {
+            favbtn.style.color = ""; 
+        }
+    
+        
+        var isFavorited = favbtn.classList.contains("fav-active");
+        fetch('/toggle-favorite', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                tool_name: toolName,
+                description: description,
+                icon_text: iconText,
+                is_favorited: isFavorited,
+                href: href,
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.message); 
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    
+    function FavButton3(event, toolName, description, iconText, href) {
+        event.preventDefault();
+    
+        
+        var favbtn = document.getElementById("favbtn3");
+        favbtn.classList.toggle("fav-active");
+    
+        
+        if (favbtn.classList.contains("fav-active")) {
+            favbtn.style.color = "red";
+        } else {
+            favbtn.style.color = ""; 
+        }
+    
+        
+        var isFavorited = favbtn.classList.contains("fav-active");
+        fetch('/toggle-favorite', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                tool_name: toolName,
+                description: description,
+                icon_text: iconText,
+                is_favorited: isFavorited,
+                href: href,
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.message); 
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    
+    function FavButton4(event, toolName, description, iconText, href) {
+        event.preventDefault();
+    
+        var favbtn = document.getElementById("favbtn4");
+        favbtn.classList.toggle("fav-active");
+    
+        
+        if (favbtn.classList.contains("fav-active")) {
+            favbtn.style.color = "red"; 
+        } else {
+            favbtn.style.color = ""; 
+        }
+    
+        var isFavorited = favbtn.classList.contains("fav-active");
+        fetch('/toggle-favorite', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                tool_name: toolName,
+                description: description,
+                icon_text: iconText,
+                is_favorited: isFavorited,
+                href: href,
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.message); 
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    function FavButton5(event, toolName, description, iconText, href) {
+        event.preventDefault();
+    
+    
+        var favbtn = document.getElementById("favbtn5");
+        favbtn.classList.toggle("fav-active");
+    
+        if (favbtn.classList.contains("fav-active")) {
+            favbtn.style.color = "red"; 
+        } else {
+            favbtn.style.color = ""; 
+        }
+    
+        var isFavorited = favbtn.classList.contains("fav-active");
+        fetch('/toggle-favorite', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                tool_name: toolName,
+                description: description,
+                icon_text: iconText,
+                is_favorited: isFavorited,
+                href: href,
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.message);
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    function FavButton6(event, toolName, description, iconText, href) {
+    
+        event.preventDefault();
+    
+       
+        var favbtn = document.getElementById("favbtn6");
+        favbtn.classList.toggle("fav-active");
+    
+        
+        if (favbtn.classList.contains("fav-active")) {
+            favbtn.style.color = "red"; 
+        } else {
+            favbtn.style.color = ""; 
+        }
+    
+        
+        var isFavorited = favbtn.classList.contains("fav-active");
+        fetch('/toggle-favorite', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                tool_name: toolName,
+                description: description,
+                icon_text: iconText,
+                is_favorited: isFavorited,
+                href: href,
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.message); 
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    function FavButton7(event, toolName, description, iconText, href) {
+        event.preventDefault();
+    
+        
+        var favbtn = document.getElementById("favbtn7");
+        favbtn.classList.toggle("fav-active");
+    
+    
+        if (favbtn.classList.contains("fav-active")) {
+            favbtn.style.color = "red"; 
+        } else {
+            favbtn.style.color = ""; 
+        }
+    
+       
+        var isFavorited = favbtn.classList.contains("fav-active");
+        fetch('/toggle-favorite', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                tool_name: toolName,
+                description: description,
+                icon_text: iconText,
+                is_favorited: isFavorited,
+                href: href,
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.message); 
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    
+    function FavButton8(event, toolName, description, iconText, href) {
+        event.preventDefault();
+    
+        
+        var favbtn = document.getElementById("favbtn8");
+        favbtn.classList.toggle("fav-active");
+    
+    
+        if (favbtn.classList.contains("fav-active")) {
+            favbtn.style.color = "red"; 
+        } else {
+            favbtn.style.color = ""; 
+        }
+    
+    
+        var isFavorited = favbtn.classList.contains("fav-active");
+        fetch('/toggle-favorite', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                tool_name: toolName,
+                description: description,
+                icon_text: iconText,
+                is_favorited: isFavorited,
+                href: href,
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.message); 
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    
+    function FavButton9(event, toolName, description, iconText, href) {
+      
+        event.preventDefault();
+    
+       
+        var favbtn = document.getElementById("favbtn9");
+        favbtn.classList.toggle("fav-active");
+    
+        
+        if (favbtn.classList.contains("fav-active")) {
+            favbtn.style.color = "red"; 
+        } else {
+            favbtn.style.color = ""; 
+        }
+    
+        
+        var isFavorited = favbtn.classList.contains("fav-active");
+        fetch('/toggle-favorite', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                tool_name: toolName,
+                description: description,
+                icon_text: iconText,
+                is_favorited: isFavorited,
+                href: href,
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.message); 
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    
+    function FavButton10(event, toolName, description, iconText, href) {
+        event.preventDefault();
+    
+        var favbtn = document.getElementById("favbtn10");
+        favbtn.classList.toggle("fav-active");
+    
+       
+        if (favbtn.classList.contains("fav-active")) {
+            favbtn.style.color = "red"; 
+        } else {
+            favbtn.style.color = ""; 
+        }
+    
+      
+        var isFavorited = favbtn.classList.contains("fav-active");
+        fetch('/toggle-favorite', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                tool_name: toolName,
+                description: description,
+                icon_text: iconText,
+                is_favorited: isFavorited,
+                href: href,
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.message);
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    
+    navToggle.addEventListener('change', function() {
+      if (navToggle.checked) {
+        parentContainer.style.marginRight = `${navbarrightCollapsed}px`;
+        parentContainer.style.marginLeft = `${navbarWidthCollapsed}px`; 
+        parentContainer.style.transition = "margin-left 0.3s ease";
+      } else {
+        parentContainer.style.marginRight = `${navbarRightExpanded}px`;
+        parentContainer.style.marginLeft = `${navbarWidthExpanded}px`; 
+        parentContainer.style.transition = "margin-left 0.3s ease";
+      }
+    });
+    
+    
+    
+    window.onload = function() {
+        const favButtons = document.querySelectorAll('.favbtn');
+        
+        favButtons.forEach(button => {
+            const isFavorited = button.getAttribute('data-favorited') === 'true';
+            
+            if (isFavorited) {
+                button.classList.add('fav-active');
+                button.style.color = "red";
+            }
+        });
+    }
+    
+    
+
+    
+    
+    
+
+
+
+
+function adjustLayoutForNavbar() {
+  if (window.innerWidth > 768) {
+    navToggle.addEventListener("change", updateCardContainerStyles);
+    navToggle.disabled = false;
+  } else {
+    navToggle.checked = true; 
+    navToggle.disabled = true;
+   
+    parentContainer.style.marginLeft = '';
+    parentContainer.style.marginRight = '';
+    
+    navToggleBurger.addEventListener('click', function() {
+      window.location.href = "{{ url_for('homepage') }}";
+    });
+  }
+}
+
+function closeNavbarOnSmallScreens() {
+  const navBar = document.getElementById("nav-bar"); 
+  const navToggle = document.getElementById("nav-toggle"); 
+  
+  if (window.innerWidth <= 768) {
+    navToggle.checked = true; 
+    navToggle.disabled = true; 
+    navBar.classList.add("show"); 
+  } else {
+    navToggle.disabled = false; 
+    navBar.classList.add("show"); 
+  }
+}
+
+window.addEventListener("load", function () {
+  closeNavbarOnSmallScreens();
+  adjustLayoutForNavbar();
+});
+
+
+window.addEventListener("resize", function () {
+  closeNavbarOnSmallScreens();
+  adjustLayoutForNavbar();
+});
+
+
+
+      </script>
+ 
+</body>
+</html>
+
