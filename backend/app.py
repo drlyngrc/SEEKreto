@@ -374,7 +374,6 @@ def atbash_cipher(text):
             result += char
     return result
 
-
 @app.route('/atbash', methods=['GET', 'POST'])
 def atbash():
     result = ""
@@ -494,7 +493,6 @@ def caesar_cipher():
         insert_history(user_id, crypt_id, mode_id, None, None, shift, None, None, input_text, result)
 
     return render_template('caesar.html', result=result, email=email, username=username, name=name, user_id=user_id)
-
 
 @app.route('/binary', methods=['GET', 'POST'])
 def binary_code():
@@ -627,7 +625,6 @@ def affine_decrypt(text, a, b):
 
     return result
 
-
 @app.route('/affine', methods=['GET', 'POST'])
 def affine_cipher():
     result = ""
@@ -690,6 +687,61 @@ def affine_cipher():
 
     return render_template('affine.html', result=result, email=email, username=username, name=name, user_id=user_id)
 
+@app.route('/base64', methods=['GET', 'POST'])
+def base64_encode_decode():
+    result = ""
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+    if request.method == 'POST':
+      
+        user_id = session.get('user_id')
+        if not user_id:
+      
+            return redirect(url_for('login'))
+        
+        mode = request.form.get('mode')
+        
+   
+        if not mode:
+            flash("Please select an option before entering text.")
+            return redirect(url_for('base64')) 
+
+        input_text = request.form.get('input_text', '')
+
+        
+        if mode == 'toBase64':
+            mode_id = 'Text to Base64'
+            result = base64.b64encode(input_text.encode()).decode()
+        elif mode == 'toText':
+            mode_id = 'Base64 to Text'
+            try:
+                result = base64.b64decode(input_text).decode()
+            except Exception:
+                result = "Error. Invalid input. Please enter again."
+
+        crypt_id = 'Base64 Encoding'  
+        insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, input_text, result)
+
+    return render_template('base64.html', result=result, email=email, username=username, name=name, user_id=user_id)
 
 @app.route('/logout')
 def logout():
