@@ -542,54 +542,6 @@ def binary_code():
 
     return render_template('binary.html', result=result, email=email, username=username, name=name, user_id=user_id)
 
-@app.route('/binary', methods=['GET', 'POST'])
-def binary_code():
-    result = ""
-    email = None  
-    name = None  
-    username = None 
-    user_id = session.get('user_id')  
-
-    if user_id:
-        username = session.get('username', 'Guest')
-
-        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
-        email_result = cursor.fetchone()
-        if email_result:
-            email = email_result[0]
-        else:
-            email = 'Error fetching.'
-
-        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
-        name_result = cursor.fetchone()
-        if name_result:
-            name = name_result[0]
-        else:
-            name = 'Error fetching.'
-
-    if request.method == 'POST':
-        user_id = session.get('user_id')
-        if not user_id:
-            return redirect(url_for('login'))
-        
-        mode = request.form.get('mode')
-        input_text = request.form.get('input_text', '')
-        crypt_id = 'Binary Encoding' 
-        if mode == 'toBinary':
-            mode_id = 'Text to Binary'
-            result = ' '.join(format(ord(char), '08b') for char in input_text)
-        elif mode == 'toText':
-            mode_id = 'Binary to Text'
-            try:
-                result = ''.join(chr(int(binary, 2)) for binary in input_text.split())
-            except ValueError:
-                result = "Error. Invalid input. Please enter again."
-
-        insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, input_text, result)
-  
-
-    return render_template('binary.html', result=result, email=email, username=username, name=name, user_id=user_id)
-
 def affine_encrypt(text, a, b):
     result = ""
     for char in text:
@@ -742,6 +694,65 @@ def base64_encode_decode():
         insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, input_text, result)
 
     return render_template('base64.html', result=result, email=email, username=username, name=name, user_id=user_id)
+
+@app.route('/hexadecimal', methods=['GET', 'POST'])
+def hexadecimal_code():
+    result = ""
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if request.method == 'POST':
+        user_id = session.get('user_id')
+        if not user_id:
+            return redirect(url_for('login'))
+        
+        mode = request.form.get('mode')
+        
+        if not mode:
+            flash("Please select an option before entering text.")
+            return redirect(url_for('hexadecimal'))
+        
+        input_text = request.form.get('input_text', '')
+        crypt_id = 'Hexadecimal Encoding'
+        
+        if mode == 'toHex':
+            mode_id = 'Text to Hexadecimal'
+            result = ' '.join(format(ord(char), '02x') for char in input_text)
+        elif mode == 'toText':
+            mode_id = 'Hexadecimal to Text'
+            try:
+                hex_str = input_text.replace(' ', '')
+                hex_str = hex_str.replace('0x', '')
+                result = ''
+                for i in range(0, len(hex_str), 2):
+                    if i + 1 < len(hex_str):
+                        char_code = int(hex_str[i:i+2], 16)
+                        result += chr(char_code)
+            except ValueError:
+                result = "Error. Invalid hexadecimal input. Please enter again."
+                
+        insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, input_text, result)
+
+    return render_template('hexadecimal.html', result=result, email=email, username=username, name=name, user_id=user_id)
 
 @app.route('/logout')
 def logout():
