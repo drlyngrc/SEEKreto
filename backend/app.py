@@ -859,6 +859,113 @@ def morse_code():
 
     return render_template('morse.html', result=result, email=email, username=username, name=name, user_id=user_id)
 
+def rail_fence_encrypt(text, rails):
+    fence = [[] for _ in range(rails)]
+    rail = 0
+    direction = 1
+    
+    for char in text:
+        fence[rail].append(char)
+        rail += direction
+        
+        if rail == 0 or rail == rails - 1:
+            direction = -direction
+    
+    result = ''
+    for rail_content in fence:
+        result += ''.join(rail_content)
+    
+    return result
+
+def rail_fence_decrypt(text, rails):
+    if not text:
+        return ""
+        
+    fence_len = len(text)
+    
+    fence = [[''] * fence_len for _ in range(rails)]
+    
+    rail = 0
+    direction = 1
+    for i in range(fence_len):
+        fence[rail][i] = '*'
+        rail += direction
+        if rail == 0 or rail == rails - 1:
+            direction = -direction
+    
+    index = 0
+    for i in range(rails):
+        for j in range(fence_len):
+            if fence[i][j] == '*' and index < len(text):
+                fence[i][j] = text[index]
+                index += 1
+    
+    result = ''
+    rail = 0
+    direction = 1
+    for i in range(fence_len):
+        result += fence[rail][i]
+        rail += direction
+        if rail == 0 or rail == rails - 1:
+            direction = -direction
+    
+    return result
+
+@app.route('/railfence', methods=['GET', 'POST'])
+def rail_fence():
+    result = ""
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if request.method == 'POST':
+        user_id = session.get('user_id')
+        if not user_id:
+            return redirect(url_for('login'))
+        
+        mode = request.form.get('mode')
+        
+        if not mode:
+            flash("Please select an option before entering text.")
+            return redirect(url_for('railfence'))
+            
+        input_text = request.form.get('input_text', '')
+        rails = int(request.form.get('rails', 3))
+        
+        if rails < 2:
+            rails = 2
+            
+        crypt_id = 'Rail Fence Cipher'
+        
+        if mode == 'encrypt':
+            mode_id = 'Text to Rail Fence Cipher'
+            result = rail_fence_encrypt(input_text, rails)
+        elif mode == 'decrypt':
+            mode_id = 'Rail Fence Cipher to Text'
+            result = rail_fence_decrypt(input_text, rails)
+            
+            insert_history(user_id, crypt_id, mode_id, None, None, None, None, rails, input_text, result)
+            
+    return render_template('railfence.html', result=result, email=email, username=username, name=name, user_id=user_id)
+        
 def insert_history(user_id, crypt_id, mode_id, a_value=None, b_value=None, shift=None, key=None, rail=None, input_text="", output_text=""):
     try:
         cursor.execute("SELECT crypt_id FROM ciphers WHERE type_of_tool = %s", (crypt_id,))
@@ -902,7 +1009,7 @@ def insert_history(user_id, crypt_id, mode_id, a_value=None, b_value=None, shift
         
     except Exception as e:
         print(f"Error adding history: {str(e)}")
-        
+
 @app.route('/logout')
 def logout():
     session.pop('username', None)
