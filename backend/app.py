@@ -754,6 +754,155 @@ def hexadecimal_code():
 
     return render_template('hexadecimal.html', result=result, email=email, username=username, name=name, user_id=user_id)
 
+def morse_encode(text):
+    morse_code_dict = {
+        'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 
+        'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..', 
+        'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 
+        'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 
+        'Y': '-.--', 'Z': '--..', 
+        '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-', 
+        '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.', 
+        '.': '.-.-.-', ',': '--..--', '?': '..--..', "'": '.----.', 
+        '!': '-.-.--', '/': '-..-.', '(': '-.--.', ')': '-.--.-', 
+        '&': '.-...', ':': '---...', ';': '-.-.-.', '=': '-...-', 
+        '+': '.-.-.', '-': '-....-', '_': '..--.-', '"': '.-..-.', 
+        '$': '...-..-', '@': '.--.-.', ' ': '/'
+    }
+    
+    encoded_text = []
+    for char in text.upper():
+        if char in morse_code_dict:
+            encoded_text.append(morse_code_dict[char])
+    
+    return ' '.join(encoded_text)
+
+def morse_decode(text):
+    morse_code_dict = {
+        '.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E', '..-.': 'F', 
+        '--.': 'G', '....': 'H', '..': 'I', '.---': 'J', '-.-': 'K', '.-..': 'L', 
+        '--': 'M', '-.': 'N', '---': 'O', '.--.': 'P', '--.-': 'Q', '.-.': 'R', 
+        '...': 'S', '-': 'T', '..-': 'U', '...-': 'V', '.--': 'W', '-..-': 'X', 
+        '-.--': 'Y', '--..': 'Z', 
+        '-----': '0', '.----': '1', '..---': '2', '...--': '3', '....-': '4', 
+        '.....': '5', '-....': '6', '--...': '7', '---..': '8', '----.': '9', 
+        '.-.-.-': '.', '--..--': ',', '..--..': '?', '.----.': "'", 
+        '-.-.--': '!', '-..-.': '/', '-.--.': '(', '-.--.-': ')', 
+        '.-...': '&', '---...': ':', '-.-.-.': ';', '-...-': '=', 
+        '.-.-.': '+', '-....-': '-', '..--.-': '_', '.-..-.': '"', 
+        '...-..-': '$', '.--.-.': '@', '/': ' '
+    }
+    
+    words = text.strip().split('   ')
+    decoded_text = []
+    
+    for word in words:
+        chars = word.split(' ')
+        word_chars = []
+        for char in chars:
+            if char in morse_code_dict:
+                word_chars.append(morse_code_dict[char])
+        decoded_text.append(''.join(word_chars))
+    
+    return ' '.join(decoded_text)
+
+@app.route('/morse', methods=['GET', 'POST'])
+def morse_code():
+    result = ""
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if request.method == 'POST':
+        user_id = session.get('user_id')
+        if not user_id:
+            return redirect(url_for('login'))
+        
+        mode = request.form.get('mode')
+        
+        if not mode:
+            flash("Please select an option before entering text.")
+            return redirect(url_for('morse'))
+
+        input_text = request.form.get('input_text', '')
+        crypt_id = 'Morse Code'
+        
+        if mode == 'toMorse':
+            mode_id = 'Text to Morse Code'
+            result = morse_encode(input_text)
+        elif mode == 'toText':
+            mode_id = 'Morse Code to Text'
+            try:
+                result = morse_decode(input_text)
+            except Exception as e:
+                result = f"Error decoding Morse code: {str(e)}"
+
+        insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, input_text, result)
+
+    return render_template('morse.html', result=result, email=email, username=username, name=name, user_id=user_id)
+
+def insert_history(user_id, crypt_id, mode_id, a_value=None, b_value=None, shift=None, key=None, rail=None, input_text="", output_text=""):
+    try:
+        cursor.execute("SELECT crypt_id FROM ciphers WHERE type_of_tool = %s", (crypt_id,))
+        cipher_result = cursor.fetchone()
+        if not cipher_result:
+            print(f"Error: Cipher '{crypt_id}' not found in the database.")
+            return
+        
+        crypt_id_value = cipher_result[0]
+        
+        cursor.execute("SELECT mode_id FROM conversion WHERE type_of_conversion = %s", (mode_id,))
+        mode_result = cursor.fetchone()
+        if not mode_result:
+            print(f"Error: Mode '{mode_id}' not found in the database.")
+            return
+            
+        mode_id_value = mode_result[0]
+        
+        cursor.execute("SELECT hist_id FROM history ORDER BY hist_id DESC LIMIT 1")
+        last_hist = cursor.fetchone()
+        
+        if last_hist:
+            last_hist_id = last_hist[0]
+            hist_number = int(last_hist_id.replace("HIST", "")) + 1
+            new_hist_id = f"HIST{hist_number:04d}"
+        else:
+            new_hist_id = "HIST0001"
+        
+        cursor.execute("""
+            INSERT INTO history 
+            (hist_id, user_id, crypt_id, mode_id, a_value, b_value, shift, key, rail, input, output, date_time) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+        """, (new_hist_id, user_id, crypt_id_value, mode_id_value, a_value, b_value, shift, key, rail, input_text, output_text))
+        
+        db.commit()
+        print(f"History record {new_hist_id} added successfully.")
+        
+    except mysql.connector.Error as e:
+        db.rollback()
+        print(f"Database error adding history: {str(e)}")
+        
+    except Exception as e:
+        print(f"Error adding history: {str(e)}")
+        
 @app.route('/logout')
 def logout():
     session.pop('username', None)
