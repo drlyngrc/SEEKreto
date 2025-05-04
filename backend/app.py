@@ -966,6 +966,72 @@ def rail_fence():
             
     return render_template('railfence.html', result=result, email=email, username=username, name=name, user_id=user_id)
         
+def rot13_cipher(text):
+    result = ""
+    for char in text:
+        # Handle uppercase letters
+        if 'A' <= char <= 'Z':
+            # Convert to 0-25, add 13, take modulo 26, convert back to ASCII
+            result += chr((ord(char) - ord('A') + 13) % 26 + ord('A'))
+        # Handle lowercase letters
+        elif 'a' <= char <= 'z':
+            # Convert to 0-25, add 13, take modulo 26, convert back to ASCII
+            result += chr((ord(char) - ord('a') + 13) % 26 + ord('a'))
+        # Keep non-alphabetic characters unchanged
+        else:
+            result += char
+    return result
+
+@app.route('/rot13', methods=['GET', 'POST'])
+def rot13():
+    result = ""
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if request.method == 'POST':
+        user_id = session.get('user_id')
+        if not user_id:
+            return redirect(url_for('login'))
+        
+        mode = request.form.get('mode')
+        
+        if not mode:
+            flash("Please select an option before entering text.")
+            return redirect(url_for('rot13'))
+
+        text = request.form['input_text']
+        
+        # ROT13 is its own inverse, so both encryption and decryption use the same function
+        result = rot13_cipher(text)
+        
+        if mode == 'toCipher':
+            mode_id = 'Text to ROT13 Cipher'
+        elif mode == 'toText':
+            mode_id = 'ROT13 Cipher to Text'
+            
+        crypt_id = 'ROT13 Cipher'
+        insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, text, result)
+
+    return render_template('rot13.html', result=result, email=email, username=username, name=name, user_id=user_id)  
 def insert_history(user_id, crypt_id, mode_id, a_value=None, b_value=None, shift=None, key=None, rail=None, input_text="", output_text=""):
     try:
         cursor.execute("SELECT crypt_id FROM ciphers WHERE type_of_tool = %s", (crypt_id,))
