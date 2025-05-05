@@ -117,10 +117,9 @@ def homepage():
 
     user_id = session['user_id']
     username = session['username']
-    
 
     cursor.execute(
-    "SELECT email FROM users WHERE user_id = %s", (user_id,)
+        "SELECT email FROM users WHERE user_id = %s", (user_id,)
     )
     result = cursor.fetchone()
 
@@ -129,9 +128,8 @@ def homepage():
     else:
         email = 'Error fetching.'  
 
-    
     cursor.execute(
-    "SELECT name FROM users WHERE user_id = %s", (user_id,)
+        "SELECT name FROM users WHERE user_id = %s", (user_id,)
     )
     result_name = cursor.fetchone()
 
@@ -139,19 +137,113 @@ def homepage():
         name = result_name[0]  
     else:
         name = 'Error fetching.' 
-    
-   
-    # cursor.execute(
-    #     "SELECT crypt_id FROM favorites WHERE user_id = %s", (user_id,)
-    # )
-    # favorites = cursor.fetchall()
 
-    
-    # favorite_ciphers = {favorite[0] for favorite in favorites}
-    # print("Favorite Ciphers:", favorite_ciphers)
-    
-    return render_template('homepage.html', username=username, email=email, name=name, user_id=user_id) # favorite_ciphers=favorite_ciphers
+    cursor.execute(
+        "SELECT crypt_id FROM favorites WHERE user_id = %s", (user_id,)
+    )
+    favorites = cursor.fetchall()
 
+    favorite_ciphers = {favorite[0] for favorite in favorites}
+    
+    return render_template('homepage.html', username=username, email=email, name=name, 
+                          user_id=user_id, favorite_ciphers=favorite_ciphers)
+
+@app.route('/favorites')
+def favorites():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    username = session.get('username', 'Guest')
+    
+    cursor.execute("SELECT email, name FROM users WHERE user_id = %s", (user_id,))
+    user_details = cursor.fetchone()
+    
+    if user_details:
+        email = user_details[0]
+        name = user_details[1]
+    else:
+        email = 'Error fetching'
+        name = 'Error fetching'
+    
+    cursor.execute("""
+        SELECT 
+            c.type_of_tool, 
+            f.description, 
+            f.icon_text, 
+            f.href
+        FROM 
+            favorites f
+        JOIN 
+            ciphers c ON f.crypt_id = c.crypt_id
+        WHERE 
+            f.user_id = %s
+    """, (user_id,))
+    
+    favorites = cursor.fetchall()
+    
+    return render_template('favorites.html', favorites=favorites, username=username, email=email, name=name)
+
+@app.route('/toggle-favorite', methods=['POST'])
+def toggle_favorite():
+    if 'user_id' not in session:
+        return jsonify({"success": False, "message": "Not logged in"}), 401
+    
+    data = request.get_json()
+    tool_name = data.get('tool_name')
+    description = data.get('description')
+    icon_text = data.get('icon_text')
+    is_favorited = data.get('is_favorited')
+    user_id = session['user_id']
+    
+    tool_url = "/" + tool_name.lower().replace(" ", "").replace("cipher", "").strip()
+    
+    cursor.execute("SELECT crypt_id FROM ciphers WHERE type_of_tool = %s", (tool_name,))
+    crypt_id_result = cursor.fetchone()
+    
+    if not crypt_id_result:
+        return jsonify({"success": False, "message": "Cipher not found"}), 404
+    
+    crypt_id = crypt_id_result[0]
+    
+    if is_favorited:
+        try:
+            cursor.execute("SELECT MAX(fav_id) FROM favorites")
+            max_fav_id = cursor.fetchone()[0]
+            
+            if max_fav_id:
+                fav_num = int(max_fav_id[3:]) + 1
+                new_fav_id = f"FAV{fav_num:04d}"
+            else:
+                new_fav_id = "FAV0001"
+                
+            cursor.execute("""
+                INSERT INTO favorites 
+                (fav_id, user_id, crypt_id, description, icon_text, href) 
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (new_fav_id, user_id, crypt_id, description, icon_text, tool_url))
+            db.commit()
+            return jsonify({"success": True, "message": "Added to favorites"})
+        except mysql.connector.Error as e:
+            db.rollback()
+            return jsonify({"success": False, "message": f"Database error: {str(e)}"}), 500
+    else:
+        try:
+            cursor.execute("""
+                DELETE FROM favorites 
+                WHERE user_id = %s AND crypt_id = %s
+            """, (user_id, crypt_id))
+            db.commit()
+            
+            if cursor.rowcount > 0:
+                if request.referrer and 'favorites' in request.referrer:
+                    return jsonify({"success": True, "message": "Removed from favorites", "reload": True})
+                return jsonify({"success": True, "message": "Removed from favorites"})
+            else:
+                return jsonify({"success": False, "message": "Favorite not found"}), 404
+        except mysql.connector.Error as e:
+            db.rollback()
+            return jsonify({"success": False, "message": f"Database error: {str(e)}"}), 500
 
 # Favorites
 @app.route('/favorites')
@@ -234,6 +326,817 @@ def contacts():
 
     return render_template('contacts.html', email=email, username=username, name=name)
 
+@app.route('/allhistory', methods=['GET'])
+def all_history():
+   
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if not user_id:
+        flash("Please log in to view your history.")
+        return redirect(url_for('login'))
+
+
+    cipher_type = request.args.get('cipher_type', '')
+    sort_order = request.args.get('sort_order', 'recent')  
+
+    cipher_filter = ""
+    if cipher_type:
+        cipher_filter = "AND c.type_of_tool = %s"
+    
+   
+    order_by = "ORDER BY h.date_time DESC" if sort_order == 'recent' else "ORDER BY h.date_time ASC"
+
+    
+    query = f'''
+    SELECT h.date_time, h.crypt_id, h.mode_id, h.input, h.output, h.shift, h.key, h.a_value, h.b_value, h.rail, c.type_of_tool, co.type_of_conversion
+    FROM history h
+    JOIN ciphers c ON h.crypt_id = c.crypt_id
+    JOIN conversion co ON h.mode_id = co.mode_id
+    WHERE h.user_id = %s {cipher_filter}
+    {order_by}
+    '''
+    
+   
+    params = (user_id,)
+    if cipher_type:
+        params += (cipher_type,)
+    
+    cursor.execute(query, params)
+    history_records = cursor.fetchall()
+
+
+    history = []
+    for record in history_records:
+        conversion_type = record[10]
+        mode_name = record[11]
+
+        history_entry = {
+            'timestamp': record[0],
+            'conversion_type': conversion_type,
+            'mode_type': mode_name,
+            'input': record[3],
+            'output': record[4]
+        }
+
+        if record[5] is not None:
+            history_entry['shift'] = record[5]
+        if record[6] and record[6] != 'n/a':
+            history_entry['key'] = record[6]
+        if record[7] is not None:
+            history_entry['a_value'] = record[7]
+        if record[8] is not None:
+            history_entry['b_value'] = record[8]
+        if record[9] is not None:
+            history_entry['rail'] = record[9]
+
+        
+        history.append(history_entry)
+
+   
+    return render_template('allhistory.html', history=history, email=email, username=username, name=name)
+
+def atbash_cipher(text):
+    alphabet_upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    reversed_alphabet_upper = 'ZYXWVUTSRQPONMLKJIHGFEDCBA'
+    alphabet_lower = 'abcdefghijklmnopqrstuvwxyz'
+    reversed_alphabet_lower = 'zyxwvutsrqponmlkjihgfedcba'
+    result = ''
+
+    for char in text:
+        if char in alphabet_upper:
+            index = alphabet_upper.index(char)
+            converted_char = reversed_alphabet_upper[index]
+            result += converted_char
+        elif char in alphabet_lower:
+            index = alphabet_lower.index(char)
+            converted_char = reversed_alphabet_lower[index]
+            result += converted_char
+        else:
+            result += char
+    return result
+
+@app.route('/atbash', methods=['GET', 'POST'])
+def atbash():
+    result = ""
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if request.method == 'POST':
+       
+        user_id = session.get('user_id')
+        if not user_id:
+            return redirect(url_for('login'))
+        
+       
+        mode = request.form.get('mode')
+        
+       
+        if not mode:
+            flash("Please select an option before entering text.")
+            return redirect(url_for('atbash'))  
+
+        
+        if mode == 'toCipher':
+            mode_id = 'Text to Atbash Cipher'
+        elif mode == 'toText':
+            mode_id = 'Atbash Cipher to Text'
+
+        text = request.form['input_text']
+
+        result = atbash_cipher(text)
+
+        crypt_id = 'Atbash Cipher' 
+     
+        insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, text, result)
+
+    return render_template('atbash.html', result=result, email=email, username=username, name=name, user_id=user_id)
+
+def caesar_encrypt(text, shift):
+    encrypted = ""
+    for char in text:
+        if char.isalpha():
+            shift_base = 65 if char.isupper() else 97
+            encrypted += chr((ord(char) - shift_base + shift) % 26 + shift_base)
+        else:
+            encrypted += char
+    return encrypted
+
+def caesar_decrypt(text, shift):
+    return caesar_encrypt(text, -shift)
+
+@app.route('/caesar', methods=['GET', 'POST'])
+def caesar_cipher():
+    result = ""
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if request.method == 'POST':
+         
+        user_id = session.get('user_id')
+        if not user_id:
+            return redirect(url_for('login'))
+        
+        mode = request.form.get('mode')
+
+        if not mode:
+            flash("Please select an option before entering text.")
+            return redirect(url_for('caesar')) 
+
+        shift = int(request.form.get('shift', 3))  
+        input_text = request.form.get('input_text', '')
+
+        if mode == 'toCipher':
+            mode_id = 'Text to Caesar Cipher'
+            result = caesar_encrypt(input_text, shift)
+        elif mode == 'toText':
+            mode_id = 'Caesar Cipher to Text'
+            result = caesar_decrypt(input_text, shift)
+            
+        crypt_id = 'Caesar Cipher'
+        insert_history(user_id, crypt_id, mode_id, None, None, shift, None, None, input_text, result)
+
+    return render_template('caesar.html', result=result, email=email, username=username, name=name, user_id=user_id)
+
+@app.route('/binary', methods=['GET', 'POST'])
+def binary_code():
+    result = ""
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if request.method == 'POST':
+        user_id = session.get('user_id')
+        if not user_id:
+            return redirect(url_for('login'))
+        
+        mode = request.form.get('mode')
+        input_text = request.form.get('input_text', '')
+        crypt_id = 'Binary Encoding' 
+        if mode == 'toBinary':
+            mode_id = 'Text to Binary'
+            result = ' '.join(format(ord(char), '08b') for char in input_text)
+        elif mode == 'toText':
+            mode_id = 'Binary to Text'
+            try:
+                result = ''.join(chr(int(binary, 2)) for binary in input_text.split())
+            except ValueError:
+                result = "Error. Invalid input. Please enter again."
+
+        insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, input_text, result)
+  
+
+    return render_template('binary.html', result=result, email=email, username=username, name=name, user_id=user_id)
+
+def affine_encrypt(text, a, b):
+    result = ""
+    for char in text:
+        if char.isalpha():
+            shift_base = 65 if char.isupper() else 97
+            encrypted_char = chr(((a * (ord(char) - shift_base) + b) % 26) + shift_base)
+            result += encrypted_char
+        else:
+            result += char 
+    return result
+
+
+def affine_decrypt(text, a, b):
+    result = ""
+    a_inv = None
+    
+    for i in range(26):
+        if (a * i) % 26 == 1:
+            a_inv = i
+            break
+
+    if a_inv is None:
+        raise ValueError("The 'a' value must be coprime to 26.")
+
+    for char in text:
+        if char.isalpha():
+            shift_base = 65 if char.isupper() else 97
+   
+            decrypted_char = (a_inv * ((ord(char) - shift_base - b) % 26)) % 26 + shift_base
+            result += chr(decrypted_char) 
+        else:
+            result += char 
+
+    return result
+
+@app.route('/affine', methods=['GET', 'POST'])
+def affine_cipher():
+    result = ""
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if request.method == 'POST':
+        if not user_id:
+            return redirect(url_for('login'))
+
+        mode = request.form.get('mode')
+        input_text = request.form.get('input_text', '')
+        a_value = int(request.form.get('a_value', '1'))
+        b_value = int(request.form.get('b_value', '0'))
+
+    
+        a_value = a_value % 26
+        if a_value not in [1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25]:
+            result = "The 'a' value must be an odd number that is coprime to 26."
+        else:
+    
+            if b_value < 1:
+                b_value = 1 
+
+            try:
+              
+                if mode == 'encrypt':
+                    result = affine_encrypt(input_text, a_value, b_value)
+                elif mode == 'decrypt':
+                    result = affine_decrypt(input_text, a_value, b_value)
+
+               
+                mode_id = 'Text to Affine Cipher' if mode == 'encrypt' else 'Affine Cipher to Text'
+                crypt_id = 'Affine Cipher'
+
+             
+                insert_history(user_id, crypt_id, mode_id, a_value, b_value, None, None, None, input_text, result)
+
+            except ValueError as e:
+                result = str(e)  
+
+    return render_template('affine.html', result=result, email=email, username=username, name=name, user_id=user_id)
+
+@app.route('/base64', methods=['GET', 'POST'])
+def base64_encode_decode():
+    result = ""
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+    if request.method == 'POST':
+      
+        user_id = session.get('user_id')
+        if not user_id:
+      
+            return redirect(url_for('login'))
+        
+        mode = request.form.get('mode')
+        
+   
+        if not mode:
+            flash("Please select an option before entering text.")
+            return redirect(url_for('base64')) 
+
+        input_text = request.form.get('input_text', '')
+
+        
+        if mode == 'toBase64':
+            mode_id = 'Text to Base64'
+            result = base64.b64encode(input_text.encode()).decode()
+        elif mode == 'toText':
+            mode_id = 'Base64 to Text'
+            try:
+                result = base64.b64decode(input_text).decode()
+            except Exception:
+                result = "Error. Invalid input. Please enter again."
+
+        crypt_id = 'Base64 Encoding'  
+        insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, input_text, result)
+
+    return render_template('base64.html', result=result, email=email, username=username, name=name, user_id=user_id)
+
+@app.route('/hexadecimal', methods=['GET', 'POST'])
+def hexadecimal_code():
+    result = ""
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if request.method == 'POST':
+        user_id = session.get('user_id')
+        if not user_id:
+            return redirect(url_for('login'))
+        
+        mode = request.form.get('mode')
+        
+        if not mode:
+            flash("Please select an option before entering text.")
+            return redirect(url_for('hexadecimal'))
+        
+        input_text = request.form.get('input_text', '')
+        crypt_id = 'Hexadecimal Encoding'
+        
+        if mode == 'toHex':
+            mode_id = 'Text to Hexadecimal'
+            result = ' '.join(format(ord(char), '02x') for char in input_text)
+        elif mode == 'toText':
+            mode_id = 'Hexadecimal to Text'
+            try:
+                hex_str = input_text.replace(' ', '')
+                hex_str = hex_str.replace('0x', '')
+                result = ''
+                for i in range(0, len(hex_str), 2):
+                    if i + 1 < len(hex_str):
+                        char_code = int(hex_str[i:i+2], 16)
+                        result += chr(char_code)
+            except ValueError:
+                result = "Error. Invalid hexadecimal input. Please enter again."
+                
+        insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, input_text, result)
+
+    return render_template('hexadecimal.html', result=result, email=email, username=username, name=name, user_id=user_id)
+
+def morse_encode(text):
+    morse_code_dict = {
+        'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 
+        'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..', 
+        'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 
+        'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 
+        'Y': '-.--', 'Z': '--..', 
+        '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-', 
+        '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.', 
+        '.': '.-.-.-', ',': '--..--', '?': '..--..', "'": '.----.', 
+        '!': '-.-.--', '/': '-..-.', '(': '-.--.', ')': '-.--.-', 
+        '&': '.-...', ':': '---...', ';': '-.-.-.', '=': '-...-', 
+        '+': '.-.-.', '-': '-....-', '_': '..--.-', '"': '.-..-.', 
+        '$': '...-..-', '@': '.--.-.', ' ': '/'
+    }
+    
+    encoded_text = []
+    for char in text.upper():
+        if char in morse_code_dict:
+            encoded_text.append(morse_code_dict[char])
+    
+    return ' '.join(encoded_text)
+
+def morse_decode(text):
+    morse_code_dict = {
+        '.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E', '..-.': 'F', 
+        '--.': 'G', '....': 'H', '..': 'I', '.---': 'J', '-.-': 'K', '.-..': 'L', 
+        '--': 'M', '-.': 'N', '---': 'O', '.--.': 'P', '--.-': 'Q', '.-.': 'R', 
+        '...': 'S', '-': 'T', '..-': 'U', '...-': 'V', '.--': 'W', '-..-': 'X', 
+        '-.--': 'Y', '--..': 'Z', 
+        '-----': '0', '.----': '1', '..---': '2', '...--': '3', '....-': '4', 
+        '.....': '5', '-....': '6', '--...': '7', '---..': '8', '----.': '9', 
+        '.-.-.-': '.', '--..--': ',', '..--..': '?', '.----.': "'", 
+        '-.-.--': '!', '-..-.': '/', '-.--.': '(', '-.--.-': ')', 
+        '.-...': '&', '---...': ':', '-.-.-.': ';', '-...-': '=', 
+        '.-.-.': '+', '-....-': '-', '..--.-': '_', '.-..-.': '"', 
+        '...-..-': '$', '.--.-.': '@', '/': ' '
+    }
+    
+    words = text.strip().split('   ')
+    decoded_text = []
+    
+    for word in words:
+        chars = word.split(' ')
+        word_chars = []
+        for char in chars:
+            if char in morse_code_dict:
+                word_chars.append(morse_code_dict[char])
+        decoded_text.append(''.join(word_chars))
+    
+    return ' '.join(decoded_text)
+
+@app.route('/morse', methods=['GET', 'POST'])
+def morse_code():
+    result = ""
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if request.method == 'POST':
+        user_id = session.get('user_id')
+        if not user_id:
+            return redirect(url_for('login'))
+        
+        mode = request.form.get('mode')
+        
+        if not mode:
+            flash("Please select an option before entering text.")
+            return redirect(url_for('morse'))
+
+        input_text = request.form.get('input_text', '')
+        crypt_id = 'Morse Code'
+        
+        if mode == 'toMorse':
+            mode_id = 'Text to Morse Code'
+            result = morse_encode(input_text)
+        elif mode == 'toText':
+            mode_id = 'Morse Code to Text'
+            try:
+                result = morse_decode(input_text)
+            except Exception as e:
+                result = f"Error decoding Morse code: {str(e)}"
+
+        insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, input_text, result)
+
+    return render_template('morse.html', result=result, email=email, username=username, name=name, user_id=user_id)
+
+def rail_fence_encrypt(text, rails):
+    fence = [[] for _ in range(rails)]
+    rail = 0
+    direction = 1
+    
+    for char in text:
+        fence[rail].append(char)
+        rail += direction
+        
+        if rail == 0 or rail == rails - 1:
+            direction = -direction
+    
+    result = ''
+    for rail_content in fence:
+        result += ''.join(rail_content)
+    
+    return result
+
+def rail_fence_decrypt(text, rails):
+    if not text:
+        return ""
+        
+    fence_len = len(text)
+    
+    fence = [[''] * fence_len for _ in range(rails)]
+    
+    rail = 0
+    direction = 1
+    for i in range(fence_len):
+        fence[rail][i] = '*'
+        rail += direction
+        if rail == 0 or rail == rails - 1:
+            direction = -direction
+    
+    index = 0
+    for i in range(rails):
+        for j in range(fence_len):
+            if fence[i][j] == '*' and index < len(text):
+                fence[i][j] = text[index]
+                index += 1
+    
+    result = ''
+    rail = 0
+    direction = 1
+    for i in range(fence_len):
+        result += fence[rail][i]
+        rail += direction
+        if rail == 0 or rail == rails - 1:
+            direction = -direction
+    
+    return result
+
+@app.route('/railfence', methods=['GET', 'POST'])
+def rail_fence():
+    result = ""
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if request.method == 'POST':
+        user_id = session.get('user_id')
+        if not user_id:
+            return redirect(url_for('login'))
+        
+        mode = request.form.get('mode')
+        
+        if not mode:
+            flash("Please select an option before entering text.")
+            return redirect(url_for('railfence'))
+            
+        input_text = request.form.get('input_text', '')
+        rails = int(request.form.get('rails', 3))
+        
+        if rails < 2:
+            rails = 2
+            
+        crypt_id = 'Rail Fence Cipher'
+        
+        if mode == 'encrypt':
+            mode_id = 'Text to Rail Fence Cipher'
+            result = rail_fence_encrypt(input_text, rails)
+        elif mode == 'decrypt':
+            mode_id = 'Rail Fence Cipher to Text'
+            result = rail_fence_decrypt(input_text, rails)
+            
+            insert_history(user_id, crypt_id, mode_id, None, None, None, None, rails, input_text, result)
+            
+    return render_template('railfence.html', result=result, email=email, username=username, name=name, user_id=user_id)
+        
+def rot13_cipher(text):
+    result = ""
+    for char in text:
+        # Handle uppercase letters
+        if 'A' <= char <= 'Z':
+            # Convert to 0-25, add 13, take modulo 26, convert back to ASCII
+            result += chr((ord(char) - ord('A') + 13) % 26 + ord('A'))
+        # Handle lowercase letters
+        elif 'a' <= char <= 'z':
+            # Convert to 0-25, add 13, take modulo 26, convert back to ASCII
+            result += chr((ord(char) - ord('a') + 13) % 26 + ord('a'))
+        # Keep non-alphabetic characters unchanged
+        else:
+            result += char
+    return result
+
+@app.route('/rot13', methods=['GET', 'POST'])
+def rot13():
+    result = ""
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if request.method == 'POST':
+        user_id = session.get('user_id')
+        if not user_id:
+            return redirect(url_for('login'))
+        
+        mode = request.form.get('mode')
+        
+        if not mode:
+            flash("Please select an option before entering text.")
+            return redirect(url_for('rot13'))
+
+        text = request.form['input_text']
+        
+        # ROT13 is its own inverse, so both encryption and decryption use the same function
+        result = rot13_cipher(text)
+        
+        if mode == 'toCipher':
+            mode_id = 'Text to ROT13 Cipher'
+        elif mode == 'toText':
+            mode_id = 'ROT13 Cipher to Text'
+            
+        crypt_id = 'ROT13 Cipher'
+        insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, text, result)
+
+    return render_template('rot13.html', result=result, email=email, username=username, name=name, user_id=user_id)  
+def insert_history(user_id, crypt_id, mode_id, a_value=None, b_value=None, shift=None, key=None, rail=None, input_text="", output_text=""):
+    try:
+        cursor.execute("SELECT crypt_id FROM ciphers WHERE type_of_tool = %s", (crypt_id,))
+        cipher_result = cursor.fetchone()
+        if not cipher_result:
+            print(f"Error: Cipher '{crypt_id}' not found in the database.")
+            return
+        
+        crypt_id_value = cipher_result[0]
+        
+        cursor.execute("SELECT mode_id FROM conversion WHERE type_of_conversion = %s", (mode_id,))
+        mode_result = cursor.fetchone()
+        if not mode_result:
+            print(f"Error: Mode '{mode_id}' not found in the database.")
+            return
+            
+        mode_id_value = mode_result[0]
+        
+        cursor.execute("SELECT hist_id FROM history ORDER BY hist_id DESC LIMIT 1")
+        last_hist = cursor.fetchone()
+        
+        if last_hist:
+            last_hist_id = last_hist[0]
+            hist_number = int(last_hist_id.replace("HIST", "")) + 1
+            new_hist_id = f"HIST{hist_number:04d}"
+        else:
+            new_hist_id = "HIST0001"
+        
+        cursor.execute("""
+            INSERT INTO history 
+            (hist_id, user_id, crypt_id, mode_id, a_value, b_value, shift, key, rail, input, output, date_time) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+        """, (new_hist_id, user_id, crypt_id_value, mode_id_value, a_value, b_value, shift, key, rail, input_text, output_text))
+        
+        db.commit()
+        print(f"History record {new_hist_id} added successfully.")
+        
+    except mysql.connector.Error as e:
+        db.rollback()
+        print(f"Database error adding history: {str(e)}")
+        
+    except Exception as e:
+        print(f"Error adding history: {str(e)}")
 
 # Logout
 @app.route('/logout')
