@@ -226,42 +226,58 @@ def homepage():
     return render_template('homepage.html', username=username, email=email, name=name, 
                           user_id=user_id, favorite_ciphers=favorite_ciphers)
 
+
+# Favorites
 @app.route('/favorites')
 def favorites():
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    
-    user_id = session['user_id']
-    username = session.get('username', 'Guest')
-    
-    cursor.execute("SELECT email, name FROM users WHERE user_id = %s", (user_id,))
-    user_details = cursor.fetchone()
-    
-    if user_details:
-        email = user_details[0]
-        name = user_details[1]
-    else:
-        email = 'Error fetching'
-        name = 'Error fetching'
+
+
     
     cursor.execute("""
-        SELECT 
-            c.type_of_tool, 
-            f.description, 
-            f.icon_text, 
-            f.href
-        FROM 
-            favorites f
-        JOIN 
-            ciphers c ON f.crypt_id = c.crypt_id
-        WHERE 
-            f.user_id = %s
+        SELECT c.type_of_tool, f.description, f.icon_text, f.href
+        FROM favorites f
+        JOIN ciphers c ON f.crypt_id = c.crypt_id
+        WHERE f.user_id = %s
+        ORDER BY c.type_of_tool ASC
     """, (user_id,))
-    
     favorites = cursor.fetchall()
-    
-    return render_template('favorites.html', favorites=favorites, username=username, email=email, name=name)
 
+    
+    if favorites:
+        
+        return render_template('favorites.html', favorites=favorites, email=email, username=username, name=name)
+    else:
+       
+        flash("You don't have any favorites yet. Add some from the homepage!")
+        return render_template('favorites.html', favorites=[], email=email, username=username, name=name)
+
+
+# Toggle favorites
 @app.route('/toggle-favorite', methods=['POST'])
 def toggle_favorite():
     if 'user_id' not in session:
@@ -323,56 +339,6 @@ def toggle_favorite():
             db.rollback()
             return jsonify({"success": False, "message": f"Database error: {str(e)}"}), 500
 
-# Favorites
-@app.route('/favorites')
-def favorites():
-     
-    email = None  
-    name = None  
-    username = None 
-    user_id = session.get('user_id')  
-
-    if user_id:
-        username = session.get('username', 'Guest')
-
-        
-        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
-        email_result = cursor.fetchone()
-        if email_result:
-            email = email_result[0]
-        else:
-            email = 'Error fetching.'
-
-        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
-        name_result = cursor.fetchone()
-        if name_result:
-            name = name_result[0]
-        else:
-            name = 'Error fetching.'
-
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-
-
-    
-    cursor.execute("""
-        SELECT c.type_of_tool, f.description, f.icon_text, f.href
-        FROM favorites f
-        JOIN ciphers c ON f.crypt_id = c.crypt_id
-        WHERE f.user_id = %s
-        ORDER BY c.type_of_tool ASC
-    """, (user_id,))
-    favorites = cursor.fetchall()
-
-    
-    if favorites:
-        
-        return render_template('favorites.html', favorites=favorites, email=email, username=username, name=name)
-    else:
-       
-        flash("You don't have any favorites yet. Add some from the homepage!")
-        return render_template('favorites.html', favorites=[], email=email, username=username, name=name)
-
 
 # Contacts
 @app.route('/contacts')
@@ -403,6 +369,61 @@ def contacts():
         return redirect(url_for('login'))
 
     return render_template('contacts.html', email=email, username=username, name=name)
+
+
+# History
+def insert_history(user_id, crypt_id, mode_id, a_value=None, b_value=None, shift=None, key=None, rail=None, input_text="", output_text=""):
+    try:
+        if output_text == "Error. Invalid input. Please enter again.":
+            return  
+     
+        cursor.execute("SELECT crypt_id FROM ciphers WHERE type_of_tool = %s", (crypt_id,))
+        crypt_id = cursor.fetchone()[0]
+
+       
+        cursor.execute("SELECT mode_id FROM conversion WHERE type_of_conversion = %s", (mode_id,))
+        mode_id = cursor.fetchone()[0]
+
+       
+        cursor.execute("SELECT MAX(history_id) FROM history")
+        max_history_id = cursor.fetchone()[0]
+        if max_history_id:
+            last_id_number = int(max_history_id.replace('histo', ''))
+            new_history_id = f"histo{last_id_number + 1:05d}"
+        else:
+            new_history_id = "histo00001"
+
+       
+        columns = ["history_id", "user_id", "crypt_id", "mode_id", "input", "output"]
+        values = [new_history_id, user_id, crypt_id, mode_id, input_text, output_text]
+        
+        
+        if a_value is not None:
+            columns.append("a_value")
+            values.append(a_value)
+        if b_value is not None:
+            columns.append("b_value")
+            values.append(b_value)
+        if shift is not None:
+            columns.append("shift")
+            values.append(shift)
+        if key is not None:
+            columns.append("`key`")  
+            values.append(key)
+        if rail is not None:
+            columns.append("rail")
+            values.append(rail)
+
+      
+        sql_query = f"INSERT INTO history ({', '.join(columns)}) VALUES ({', '.join(['%s'] * len(values))})"
+        cursor.execute(sql_query, values)
+
+      
+        db.commit()
+
+    except Exception as e:
+        print(f"Error inserting history: {e}")
+        db.rollback()
 
 @app.route('/allhistory', methods=['GET'])
 def all_history():
@@ -493,6 +514,8 @@ def all_history():
 
    
     return render_template('allhistory.html', history=history, email=email, username=username, name=name)
+
+
 
 def atbash_cipher(text):
     alphabet_upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
