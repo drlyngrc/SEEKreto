@@ -28,7 +28,7 @@ def index():
     return render_template('index.html')
 
 
-# Test database
+# Test database connection
 @app.route('/test-db')
 def test_db():
     try:
@@ -108,6 +108,55 @@ def login():
 
 	return render_template('login.html')
 
+
+# Forgot password
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+
+       
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+
+        if user:
+            token = s.dumps(email, salt='password-reset')
+
+            cursor.execute("UPDATE users SET reset_token = %s WHERE email = %s", (token, email))
+            db.commit()
+
+           
+            reset_url = url_for('reset_password', token=token, _external=True)
+
+            html_body = f"""
+            <html>
+                <body>
+                    <div style="text-align: center; font-family: Arial, sans-serif;">
+                        <h1 style="color: blue;">CodeCrypt</h1>
+                        <p><strong>Encrypt It, Decrypt It,<br>Keep It Safe with CodeCrypt</strong></p>
+                        <p>Hey, {user[3]}</p>
+                        <p>Your CodeCrypt password can be reset by clicking the link below. If you did not request a new password, please ignore this email.</p>
+                        <p><a href="{reset_url}" style="text-decoration: none; font-size: 16px; font-weight: bold; color: #007BFF;">Click this to reset your password</a></p>
+                    </div>
+                </body>
+            </html>
+            """
+
+            msg = Message('Reset Your Password', recipients=[email])
+            msg.html = html_body  
+
+            try:
+                mail.send(msg)
+                flash('A password reset link has been sent to your email.', 'success')
+            except Exception as e:
+                flash(f'Error sending email: {str(e)}', 'danger')
+                return redirect(url_for('login'))
+
+            return redirect(url_for('login'))
+        else:
+            flash('No account found with that email.', 'danger')
+
+    return render_template('login.html')
 
 # Homepage
 @app.route('/homepage')
