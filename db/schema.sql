@@ -71,3 +71,43 @@ CREATE TABLE history (
     FOREIGN KEY (crypt_id) REFERENCES ciphers(crypt_id),  
     FOREIGN KEY (mode_id) REFERENCES conversion(mode_id)  
 );
+
+ALTER TABLE conversion 
+ADD COLUMN crypt_id VARCHAR(5),
+ADD CONSTRAINT fk_crypt_id FOREIGN KEY (crypt_id) REFERENCES ciphers(crypt_id);
+
+UPDATE conversion SET crypt_id = 'CC001' WHERE mode_id = 'TXTAFF';
+UPDATE conversion SET crypt_id = 'CC001' WHERE mode_id = 'AFFTXT';
+UPDATE conversion SET crypt_id = 'CC002' WHERE mode_id = 'TXTATB';
+UPDATE conversion SET crypt_id = 'CC002' WHERE mode_id = 'ATBTXT';
+UPDATE conversion SET crypt_id = 'CC003' WHERE mode_id = 'TXTB64';
+UPDATE conversion SET crypt_id = 'CC003' WHERE mode_id = 'B64TXT';
+UPDATE conversion SET crypt_id = 'CC004' WHERE mode_id = 'TXTBI';
+UPDATE conversion SET crypt_id = 'CC004' WHERE mode_id = 'BITXT';
+UPDATE conversion SET crypt_id = 'CC005' WHERE mode_id = 'TXTCAE';
+UPDATE conversion SET crypt_id = 'CC005' WHERE mode_id = 'CAETXT';
+UPDATE conversion SET crypt_id = 'CC006' WHERE mode_id = 'TXTHEX';
+UPDATE conversion SET crypt_id = 'CC006' WHERE mode_id = 'HEXTXT';
+UPDATE conversion SET crypt_id = 'CC007' WHERE mode_id = 'TXTMRS';
+UPDATE conversion SET crypt_id = 'CC007' WHERE mode_id = 'MRSTXT';
+UPDATE conversion SET crypt_id = 'CC008' WHERE mode_id = 'TXTRLF';
+UPDATE conversion SET crypt_id = 'CC008' WHERE mode_id = 'RLFTXT';
+UPDATE conversion SET crypt_id = 'CC009' WHERE mode_id = 'TXTR13';
+UPDATE conversion SET crypt_id = 'CC009' WHERE mode_id = 'R13TXT';
+UPDATE conversion SET crypt_id = 'CC010' WHERE mode_id = 'TXTVIG';
+UPDATE conversion SET crypt_id = 'CC010' WHERE mode_id = 'VIGTXT';
+
+ALTER TABLE history
+ADD COLUMN shift INT DEFAULT NULL
+AFTER date_time;
+
+CREATE TABLE favorites (
+    fav_id VARCHAR(7) PRIMARY KEY, 
+    user_id VARCHAR(10),
+    crypt_id VARCHAR(5),
+    description TEXT,
+    icon_text VARCHAR(255),
+    href VARCHAR(25),
+    FOREIGN KEY (crypt_id) REFERENCES ciphers(crypt_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
