@@ -86,7 +86,6 @@ def register():
 #Login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-	
 	if request.method == 'POST':
 		identifier = request.form['identifier']
 		password = request.form['password']
@@ -425,6 +424,7 @@ def insert_history(user_id, crypt_id, mode_id, a_value=None, b_value=None, shift
     except Exception as e:
         print(f"Error inserting history: {e}")
         db.rollback()
+
 
 @app.route('/allhistory', methods=['GET'])
 def all_history():
@@ -1146,6 +1146,7 @@ def rot13_cipher(text):
             result += char
     return result
 
+
 @app.route('/rot13', methods=['GET', 'POST'])
 def rot13():
     result = ""
@@ -1196,7 +1197,6 @@ def rot13():
         insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, text, result)
 
     return render_template('rot13.html', result=result, email=email, username=username, name=name, user_id=user_id)  
-
 
 # Logout
 @app.route('/logout')
