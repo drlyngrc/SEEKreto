@@ -969,15 +969,10 @@ def rail_fence():
 def rot13_cipher(text):
     result = ""
     for char in text:
-        # Handle uppercase letters
         if 'A' <= char <= 'Z':
-            # Convert to 0-25, add 13, take modulo 26, convert back to ASCII
             result += chr((ord(char) - ord('A') + 13) % 26 + ord('A'))
-        # Handle lowercase letters
         elif 'a' <= char <= 'z':
-            # Convert to 0-25, add 13, take modulo 26, convert back to ASCII
             result += chr((ord(char) - ord('a') + 13) % 26 + ord('a'))
-        # Keep non-alphabetic characters unchanged
         else:
             result += char
     return result
@@ -1020,7 +1015,6 @@ def rot13():
 
         text = request.form['input_text']
         
-        # ROT13 is its own inverse, so both encryption and decryption use the same function
         result = rot13_cipher(text)
         
         if mode == 'toCipher':
@@ -1032,6 +1026,115 @@ def rot13():
         insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, text, result)
 
     return render_template('rot13.html', result=result, email=email, username=username, name=name, user_id=user_id)  
+
+def vigenere_encrypt(text, key):
+    result = ""
+    key_length = len(key)
+    key_as_int = [ord(k.lower()) - ord('a') for k in key if k.isalpha()]
+    
+    if len(key_as_int) == 0:
+        return "Error: Key must contain at least one letter."
+    
+    i = 0
+    for char in text:
+        if char.isalpha():
+            is_upper = char.isupper()
+            char_num = ord(char.lower()) - ord('a')
+            key_index = i % len(key_as_int)
+            shift = key_as_int[key_index]
+            shifted = (char_num + shift) % 26
+            new_char = chr(shifted + ord('a'))
+            if is_upper:
+                new_char = new_char.upper()
+            result += new_char
+            i += 1
+        else:
+            result += char
+    
+    return result
+
+def vigenere_decrypt(text, key):
+    result = ""
+    key_length = len(key)
+    key_as_int = [ord(k.lower()) - ord('a') for k in key if k.isalpha()]
+    
+    if len(key_as_int) == 0:
+        return "Error: Key must contain at least one letter."
+    
+    i = 0
+    for char in text:
+        if char.isalpha():
+            is_upper = char.isupper()
+            char_num = ord(char.lower()) - ord('a')
+            key_index = i % len(key_as_int)
+            shift = key_as_int[key_index]
+            shifted = (char_num - shift) % 26
+            new_char = chr(shifted + ord('a'))
+            if is_upper:
+                new_char = new_char.upper()
+            result += new_char
+            i += 1
+        else:
+            result += char
+    
+    return result
+
+@app.route('/vigenere', methods=['GET', 'POST'])
+def vigenere_cipher():
+    result = ""
+    email = None
+    name = None
+    username = None
+    user_id = session.get('user_id')
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if request.method == 'POST':
+        user_id = session.get('user_id')
+        if not user_id:
+            return redirect(url_for('login'))
+        
+        mode = request.form.get('mode')
+        
+        if not mode:
+            flash("Please select an option before entering text.")
+            return redirect(url_for('vigenere'))
+        
+        input_text = request.form.get('input_text', '')
+        key = request.form.get('key', '')
+        
+        if not key:
+            flash("Please enter a key for the Vigenère cipher.")
+            return redirect(url_for('vigenere'))
+        
+        crypt_id = 'Vigenère Cipher'
+        
+        if mode == 'toCipher':
+            mode_id = 'Text to Vigenère Cipher'
+            result = vigenere_encrypt(input_text, key)
+        elif mode == 'toText':
+            mode_id = 'Vigenère Cipher to Text'
+            result = vigenere_decrypt(input_text, key)
+        
+        insert_history(user_id, crypt_id, mode_id, None, None, None, key, None, input_text, result)
+
+    return render_template('vigenere.html', result=result, email=email, username=username, name=name, user_id=user_id)
+
 def insert_history(user_id, crypt_id, mode_id, a_value=None, b_value=None, shift=None, key=None, rail=None, input_text="", output_text=""):
     try:
         cursor.execute("SELECT crypt_id FROM ciphers WHERE type_of_tool = %s", (crypt_id,))
