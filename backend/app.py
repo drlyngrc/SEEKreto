@@ -158,6 +158,35 @@ def forgot_password():
 
     return render_template('login.html')
 
+
+# Reset password
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        email = s.loads(token, salt='password-reset', max_age=3600)
+    except SignatureExpired:
+        flash('The reset link is expired.', 'danger')
+        return redirect(url_for('login'))
+    except Exception as e:
+        flash('The reset link is invalid or has expired.', 'danger')
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        new_password = request.form['new_password']
+        hashed_password = generate_password_hash(new_password)
+
+        
+        cursor.execute("UPDATE users SET password = %s WHERE email = %s", (hashed_password, email))
+        db.commit()
+
+        cursor.execute("UPDATE users SET reset_token = NULL WHERE email = %s", (email,))
+        db.commit()
+
+        flash('Your password has been reset successfully.', 'success')
+        return redirect(url_for('login'))
+
+    return render_template('reset_password.html', token=token)
+
 # Homepage
 @app.route('/homepage')
 def homepage():
