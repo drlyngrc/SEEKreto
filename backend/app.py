@@ -226,6 +226,45 @@ def homepage():
     return render_template('homepage.html', username=username, email=email, name=name, 
                           user_id=user_id, favorite_ciphers=favorite_ciphers)
 
+# Change password
+@app.route("/changepassword", methods=["POST"])
+def change_password():
+    if request.method == "POST":
+        user_id = session.get("user_id") 
+
+        current_password = request.form["currentPassword"]
+        new_password = request.form["newPassword"]
+        confirm_password = request.form["confirmPassword"]
+
+        cursor.execute("SELECT password FROM users WHERE user_id = %s", (user_id,))
+        user_data = cursor.fetchone()
+
+        if user_data:
+            hashed_password = user_data[0]  
+
+            if not check_password_hash(hashed_password, current_password):
+                flash("Current password is incorrect.", "error")
+                return redirect(url_for("homepage")) 
+
+            if current_password == new_password:
+                flash("Current password and new password cannot be the same.", "error")
+                return redirect(url_for("homepage"))
+
+            if new_password != confirm_password:
+                flash("New password and confirmation do not match.", "error")
+                return redirect(url_for("homepage"))
+            
+            hashed_new_password = generate_password_hash(new_password)
+            cursor.execute("UPDATE users SET password = %s WHERE user_id = %s", (hashed_new_password, user_id))
+            db.commit()
+            flash("Password changed successfully!", "success")
+            return redirect(url_for("homepage")) 
+
+        flash("User not found.", "error")
+        return redirect(url_for("homepage")) 
+
+    return redirect(url_for("homepage"))
+
 
 # Favorites
 @app.route('/favorites')
