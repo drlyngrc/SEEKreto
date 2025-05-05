@@ -1302,6 +1302,7 @@ def rot13():
         insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, text, result)
 
     return render_template('rot13.html', result=result, email=email, username=username, name=name, user_id=user_id)  
+
 def insert_history(user_id, crypt_id, mode_id, a_value=None, b_value=None, shift=None, key=None, rail=None, input_text="", output_text=""):
     try:
         cursor.execute("SELECT crypt_id FROM ciphers WHERE type_of_tool = %s", (crypt_id,))
@@ -1328,10 +1329,35 @@ def insert_history(user_id, crypt_id, mode_id, a_value=None, b_value=None, shift
             hist_number = int(last_hist_id.replace("HIST", "")) + 1
             new_hist_id = f"HIST{hist_number:04d}"
         else:
-            result.append(char)
-
-    return ''.join(result)
-
+            new_hist_id = "HIST0001"
+            
+        # Build query dynamically based on provided parameters
+        columns = ["hist_id", "user_id", "crypt_id", "mode_id", "input", "output"]
+        values = [new_hist_id, user_id, crypt_id_value, mode_id_value, input_text, output_text]
+        
+        if a_value is not None:
+            columns.append("a_value")
+            values.append(a_value)
+        if b_value is not None:
+            columns.append("b_value")
+            values.append(b_value)
+        if shift is not None:
+            columns.append("shift")
+            values.append(shift)
+        if key is not None:
+            columns.append("`key`")  # Using backticks for reserved keyword
+            values.append(key)
+        if rail is not None:
+            columns.append("rail")
+            values.append(rail)
+            
+        query = f"INSERT INTO history ({', '.join(columns)}) VALUES ({', '.join(['%s'] * len(values))})"
+        cursor.execute(query, values)
+        db.commit()
+        
+    except Exception as e:
+        print(f"Error inserting history: {e}")
+        db.rollback()
 
 @app.route('/vigenere', methods=['GET', 'POST'])
 def vigenere():
