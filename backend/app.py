@@ -266,6 +266,40 @@ def change_password():
     return redirect(url_for("homepage"))
 
 
+# Change name
+@app.route('/changename', methods=['POST'])
+def change_name():
+    if request.method == "POST":
+        if 'user_id' not in session:
+            return redirect(url_for('login'))  
+
+        user_id = session['user_id']
+        new_name = request.form['newName']
+
+        
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        user_data = cursor.fetchone()
+
+        if user_data:
+            current_name = user_data[0] 
+
+            if current_name == new_name:
+                flash("Current name and new name cannot be the same.", "error")
+                return redirect(url_for("homepage"))
+
+
+            cursor.execute("UPDATE users SET name = %s WHERE user_id = %s", (new_name, user_id))
+            db.commit()
+            flash("Name changed successfully!", "success")
+            return redirect(url_for("homepage"))  
+
+        flash("User not found.", "error")
+        return redirect(url_for("homepage"))  
+
+    
+    return redirect(url_for('homepage'))
+
+
 # Favorites
 @app.route('/favorites')
 def favorites():
