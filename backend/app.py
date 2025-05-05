@@ -222,6 +222,7 @@ def homepage():
     favorites = cursor.fetchall()
 
     favorite_ciphers = {favorite[0] for favorite in favorites}
+    print("Favorite Ciphers:", favorite_ciphers)
     
     return render_template('homepage.html', username=username, email=email, name=name, 
                           user_id=user_id, favorite_ciphers=favorite_ciphers)
@@ -517,6 +518,7 @@ def all_history():
 
 
 
+# --------------- CIPHERS ---------------
 def atbash_cipher(text):
     alphabet_upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     reversed_alphabet_upper = 'ZYXWVUTSRQPONMLKJIHGFEDCBA'
@@ -715,7 +717,6 @@ def affine_encrypt(text, a, b):
         else:
             result += char 
     return result
-
 
 def affine_decrypt(text, a, b):
     result = ""
@@ -1195,49 +1196,7 @@ def rot13():
         insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, text, result)
 
     return render_template('rot13.html', result=result, email=email, username=username, name=name, user_id=user_id)  
-def insert_history(user_id, crypt_id, mode_id, a_value=None, b_value=None, shift=None, key=None, rail=None, input_text="", output_text=""):
-    try:
-        cursor.execute("SELECT crypt_id FROM ciphers WHERE type_of_tool = %s", (crypt_id,))
-        cipher_result = cursor.fetchone()
-        if not cipher_result:
-            print(f"Error: Cipher '{crypt_id}' not found in the database.")
-            return
-        
-        crypt_id_value = cipher_result[0]
-        
-        cursor.execute("SELECT mode_id FROM conversion WHERE type_of_conversion = %s", (mode_id,))
-        mode_result = cursor.fetchone()
-        if not mode_result:
-            print(f"Error: Mode '{mode_id}' not found in the database.")
-            return
-            
-        mode_id_value = mode_result[0]
-        
-        cursor.execute("SELECT hist_id FROM history ORDER BY hist_id DESC LIMIT 1")
-        last_hist = cursor.fetchone()
-        
-        if last_hist:
-            last_hist_id = last_hist[0]
-            hist_number = int(last_hist_id.replace("HIST", "")) + 1
-            new_hist_id = f"HIST{hist_number:04d}"
-        else:
-            new_hist_id = "HIST0001"
-        
-        cursor.execute("""
-            INSERT INTO history 
-            (hist_id, user_id, crypt_id, mode_id, a_value, b_value, shift, key, rail, input, output, date_time) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
-        """, (new_hist_id, user_id, crypt_id_value, mode_id_value, a_value, b_value, shift, key, rail, input_text, output_text))
-        
-        db.commit()
-        print(f"History record {new_hist_id} added successfully.")
-        
-    except mysql.connector.Error as e:
-        db.rollback()
-        print(f"Database error adding history: {str(e)}")
-        
-    except Exception as e:
-        print(f"Error adding history: {str(e)}")
+
 
 # Logout
 @app.route('/logout')
