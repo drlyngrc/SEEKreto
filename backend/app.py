@@ -300,6 +300,44 @@ def change_name():
     return redirect(url_for('homepage'))
 
 
+# Change username
+@app.route('/changeusername', methods=['POST'])
+def change_username():
+    if request.method == "POST": 
+        if 'user_id' not in session:
+            return redirect(url_for('login'))  
+
+        user_id = session['user_id']
+        current_username = session.get('username')
+        new_username = request.form.get('newUsername')
+
+        if current_username:
+            
+            if current_username == new_username:
+                flash("Current username and new username cannot be the same.", "error")
+                return redirect(url_for("homepage"))
+
+            
+            cursor.execute("SELECT COUNT(*) FROM users WHERE username = %s", (new_username,))
+            result = cursor.fetchone()
+            if result and result[0] > 0:
+                flash("Username already exists. Enter another one.", "error")
+                return redirect(url_for("homepage"))
+
+            
+            cursor.execute("UPDATE users SET username = %s WHERE user_id = %s", (new_username, user_id))
+            db.commit()
+            
+            session['username'] = new_username
+            flash("Username updated successfully!", "success")
+            return redirect(url_for("homepage"))
+
+        flash("User not found.", "error")
+        return redirect(url_for("homepage"))
+
+    return redirect(url_for('homepage'))
+
+
 # Favorites
 @app.route('/favorites')
 def favorites():
