@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - CodeCrypt</title>
+    <!-- Link to external CSS files -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='/styles/history.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+   
+</head>
+<body>
+    <header>
+        <div class="header-right">
+            <a href="/logout" class="logout-btn">Logout</a>
+            <a href="/profile" class="profile-text">
+                <i class="fas fa-user-circle"></i>  <!-- Profile Icon -->
+            </a>
+        </div>
+       
+    </header>
+
+
+
+
+    <!-- Second Navbar (Replaced with the items from the first code) -->
+    <div id="nav-bar">
+        <input id="nav-toggle" type="checkbox"/>
+        <div id="nav-header">
+           <div id="nav-logo">
+            <a href="{{ url_for('homepage') }}">
+                <img src="{{ url_for('static', filename='images/logo2.png') }}" class="login-logo">
+            </a>
+           </div>
+           <a id="nav-title" href="{{ url_for('homepage') }}">CodeCrypt</a>
+            <label for="nav-toggle"><span id="nav-toggle-burger"></span></label>
+        </div>
+        <div id="nav-content">
+            <a href="/affine" class="nav-button"><i class="fas fa-align-left"></i><span>Affine Cipher</span></a>
+            <a href="/atbash" class="nav-button"><i class="fas fa-arrow-left"></i><span>Atbash Cipher</span></a>
+            <a href="/base64" class="nav-button"><i class="fas fa-code"></i><span>Base64 Encoding</span></a>
+            <a href="/binary" class="nav-button"><i class="fas fa-circle"></i><span>Binary Encoding</span></a>
+            <a href="/caesar" class="nav-button"><i class="fas fa-asterisk"></i><span>Caesar Cipher</span></a>
+            <a href="/hexadecimal" class="nav-button"><i class="fas fa-hashtag"></i><span>Hexadecimal Encoding</span></a>
+            <a href="/morse" class="nav-button"><i class="fas fa-wave-square"></i><span>Morse Code</span></a>
+            <a href="/railfence" class="nav-button"><i class="fas fa-random"></i><span>Rail Fence Cipher</span></a>
+            <a href="/rot13" class="nav-button"><i class="fas fa-sync-alt"></i><span>ROT13 Cipher</span></a>
+            <a href="/vigenere" class="nav-button"><i class="fas fa-font"></i><span>Vigenère Cipher</span></a>
+            <hr/>
+            <a href="/favorites" class="nav-button"><i class="fas fa-heart"></i><span>Favorites</span></a>
+            <a href="/allhistory" class="nav-button"><i class="fas fa-history"></i><span>History</span></a>
+            <div id="nav-content-highlight"></div>
+        </div>
+    </div>
+
+
+
+
+ <!-- Main Content -->
+<div class="parent-container">
+    <div class="title-container">
+        <h1>History</h1>
+    </div>
+
+
+    <!-- Filter Box -->
+    <form method="GET" action="{{ url_for('all_history') }}">
+        <div class="filter-boxes">
+            <label for="cipher-type">Filter by Type:</label>
+            <select id="cipher-type" name="cipher_type" onchange="this.form.submit()">
+                <option value="">All</option>
+                <option value="Affine Cipher" {% if request.args.get('cipher_type') == 'Affine Cipher' %}selected{% endif %}>Affine Cipher</option>
+                <option value="Atbash Cipher" {% if request.args.get('cipher_type') == 'Atbash Cipher' %}selected{% endif %}>Atbash Cipher</option>
+                <option value="Base64 Encoding" {% if request.args.get('cipher_type') == 'Base64 Encoding' %}selected{% endif %}>Base64 Encoding</option>
+                <option value="Binary Encoding" {% if request.args.get('cipher_type') == 'Binary Encoding' %}selected{% endif %}>Binary Encoding</option>
+                <option value="Caesar Cipher" {% if request.args.get('cipher_type') == 'Caesar Cipher' %}selected{% endif %}>Caesar Cipher</option>
+                <option value="Hexadecimal Encoding" {% if request.args.get('cipher_type') == 'Hexadecimal Encoding' %}selected{% endif %}>Hexadecimal Encoding</option>
+                <option value="Morse Code" {% if request.args.get('cipher_type') == 'Morse Code' %}selected{% endif %}>Morse Code</option>
+                <option value="Rail Fence Cipher" {% if request.args.get('cipher_type') == 'Rail Fence Cipher' %}selected{% endif %}>Rail Fence Cipher</option>
+                <option value="ROT13 Cipher" {% if request.args.get('cipher_type') == 'ROT13 Cipher' %}selected{% endif %}>ROT13 Cipher</option>
+                <option value="Vigenère Cipher" {% if request.args.get('cipher_type') == 'Vigenère Cipher' %}selected{% endif %}>Vigenère Cipher</option>
+            </select>
+
+
+            <label for="sort-order">Sort by:</label>
+            <select id="sort-order" name="sort_order" onchange="this.form.submit()">
+                <option value="recent" {% if request.args.get('sort_order') == 'recent' %}selected{% endif %}>Recent</option>
+                <option value="old" {% if request.args.get('sort_order') == 'old' %}selected{% endif %}>Old</option>
+            </select>
+        </div>
+    </form>
+
+
+    <hr>
+
+
+    {% for record in history %}
+        <!-- Date & Time and Conversion Type -->
+        <p><strong>Date & Time:</strong> {{ record.timestamp }}</p>
+        <p><strong>Conversion Type:</strong> {{ record.conversion_type }} - {{ record.mode_type }}</p><br>
+
+
+        <!-- Input & Output Containers -->
+        <div class="history-entry">
+            <div class="input-container">
+                <h3>Input</h3>
+                <p>{{ record.input }}</p>
+            </div>
+            <div class="output-container">
+                <h3>Output</h3>
+                <p>{{ record.output }}</p>
+            </div>
+        </div>
+
+
+        <!-- Additional Details -->
+        <div class="additional-details">
+            {% if record.shift %}
+                <p><strong>Shift:</strong> {{ record.shift }}</p>
+            {% endif %}
+            {% if record.key %}
+                <p><strong>Key:</strong> {{ record.key }}</p>
+            {% endif %}
+            {% if record.a_value %}
+                <p><strong>A Value:</strong> {{ record.a_value }}</p>
+            {% endif %}
+            {% if record.b_value %}
+                <p><strong>B Value:</strong> {{ record.b_value }}</p>
+            {% endif %}
+            {% if record.rail %}
+                <p><strong>Rail:</strong> {{ record.rail }}</p>
+            {% endif %}
+        </div>
+        <hr> <!-- Divider between history entries -->
+    {% endfor %}
+</div>
+
+
+</body>
+</html>

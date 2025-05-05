@@ -1,0 +1,632 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+
+
+
+:root {
+  --background: #ffffff;
+  --navbar-width: 256px;
+  --navbar-width-min: 80px;
+  --navbar-dark-primary: #005bea;
+  --navbar-dark-secondary: #2c3e50;
+}
+
+
+
+
+html, body {
+  margin: 0;
+  background: var(--background);
+  font-family: Poppins;
+}
+
+
+
+
+#nav-toggle:checked ~ #nav-header {
+  width: calc(var(--navbar-width-min) - 16px);
+}
+#nav-toggle:checked ~ #nav-content, #nav-toggle:checked ~ #nav-footer {
+  width: var(--navbar-width-min);
+}
+#nav-toggle:checked ~ #nav-header #nav-title {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s;
+}
+
+
+
+
+#nav-toggle:checked ~ #nav-header label[for=nav-toggle] {
+  left: calc(50% - 8px);
+  transform: translate(-50%);
+}
+#nav-toggle:checked ~ #nav-header #nav-toggle-burger {
+  background: var(--background);
+}
+#nav-toggle:checked ~ #nav-header #nav-toggle-burger:before, #nav-toggle:checked ~ #nav-header #nav-toggle-burger::after {
+  width: 16px;
+  background: var(--background);
+  transform: translate(0, 0) rotate(0deg);
+}
+#nav-toggle:checked ~ #nav-content .nav-button span {
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+#nav-toggle:checked ~ #nav-content .nav-button .fas {
+  min-width: calc(100% - 16px);
+}
+
+
+
+
+#nav-bar {
+  position: fixed;
+  left: 0vw;
+  top: 0vw;
+  height: 100vh;
+  background: var(--navbar-dark-primary);
+  display: flex;
+  flex-direction: column;
+  color: var(--background);
+  font-family: Poppins, sans-serif;
+  overflow: hidden;
+  user-select: none;
+  border-radius: 0 20px 20px 0;
+}
+#nav-bar hr {
+  margin: 0;
+  position: absolute;
+  left: 16px;
+  width: calc(100% - 32px);
+  border: none;
+  border-top: solid 1px var(--navbar-dark-secondary);
+}
+#nav-bar a {
+  color: inherit;
+  text-decoration: inherit;
+}
+#nav-bar input[type=checkbox] {
+  display: none;
+}
+
+
+
+
+#nav-header {
+  position: relative;
+  width: var(--navbar-width);
+  left: 16px;
+  width: calc(var(--navbar-width) - 16px);
+  min-height: 80px;
+  background: var(--navbar-dark-primary);
+  border-radius: 16px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  transition: width 0.2s;
+  font-weight: bold;
+}
+
+
+
+
+#nav-title {
+  font-size: 1.5rem;
+  transition: opacity 1s;
+}
+#nav-logo img {
+    width: 30px; /* Adjust size of the logo */
+    height: auto;
+    margin-right: 10px;
+    margin-left: 10px; /* Maintain aspect ratio */
+    transition: opacity 0.1s ease;
+}
+#nav-logo {
+    display: flex; /* Added: Flexbox for horizontal alignment of logo and heading */
+    align-items: center;
+}
+
+
+
+
+/* New rule for fading the logo when the toggle is clicked */
+#nav-toggle:checked ~ #nav-header #nav-logo {
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+
+
+
+label[for=nav-toggle] {
+  position: absolute;
+  right: 0;
+  width: 3rem;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+
+
+
+#nav-toggle-burger {
+  position: relative;
+  width: 16px;
+  height: 2px;
+  background: var(--navbar-dark-primary);
+  border-radius: 99px;
+  transition: background 0.2s;
+}
+#nav-toggle-burger:before, #nav-toggle-burger:after {
+  content: "";
+  position: absolute;
+  top: -6px;
+  width: 10px;
+  height: 2px;
+  background: var(--background);
+  border-radius: 99px;
+  transform: translate(2px, 8px) rotate(30deg);
+  transition: 0.2s;
+}
+#nav-toggle-burger:after {
+  top: 6px;
+  transform: translate(2px, -8px) rotate(-30deg);
+}
+
+
+
+
+#nav-content {
+  margin: -16px 0;
+  padding: 16px 0;
+  position: relative;
+  flex: 1;
+  width: var(--navbar-width);
+  background: var(--navbar-dark-primary);
+  box-shadow: 0 0 0 16px var(--navbar-dark-primary);
+  direction: rtl;
+  overflow-x: hidden;
+  transition: width 0.2s;
+}
+#nav-content::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+#nav-content::-webkit-scrollbar-thumb {
+  border-radius: 99px;
+  background-color: #ffffff;
+}
+
+
+
+
+#nav-content-highlight {
+  position: absolute;
+  left: 16px;
+  top: -70px;
+  width: calc(100% - 16px);
+  height: 54px;
+  background: var(--background);
+  background-attachment: fixed;
+  border-radius: 16px 0 0 16px;
+  transition: top 0.2s;
+}
+#nav-content-highlight:before, #nav-content-highlight:after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  box-shadow: 16px 16px var(--background);
+}
+#nav-content-highlight:after {
+  top: 100%;
+  box-shadow: 16px -16px var(--background);
+}
+
+
+
+
+.nav-button {
+  position: relative;
+  margin-left: 16px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  color: var(--background);
+  direction: ltr;
+  cursor: pointer;
+  z-index: 1;
+  transition: color 0.2s;
+}
+.nav-button span {
+  transition-duration: 3s ease;
+}
+.nav-button .fas {
+  transition: min-width 0.2s;
+}
+
+
+
+
+.nav-button:nth-of-type(1):hover {
+  color: var(--navbar-dark-primary);
+}
+.nav-button:nth-of-type(1):hover ~ #nav-content-highlight {
+  top: 16px;
+}
+.nav-button:nth-of-type(2):hover {
+  color: var(--navbar-dark-primary);
+}
+.nav-button:nth-of-type(2):hover ~ #nav-content-highlight {
+  top: 70px;
+}
+.nav-button:nth-of-type(3):hover {
+  color: var(--navbar-dark-primary);
+}
+.nav-button:nth-of-type(3):hover ~ #nav-content-highlight {
+  top: 124px;
+}
+.nav-button:nth-of-type(4):hover {
+  color: var(--navbar-dark-primary);
+}
+.nav-button:nth-of-type(4):hover ~ #nav-content-highlight {
+  top: 178px;
+}
+.nav-button:nth-of-type(5):hover {
+  color: var(--navbar-dark-primary);
+}
+.nav-button:nth-of-type(5):hover ~ #nav-content-highlight {
+  top: 232px;
+}
+.nav-button:nth-of-type(6):hover {
+  color: var(--navbar-dark-primary);
+}
+.nav-button:nth-of-type(6):hover ~ #nav-content-highlight {
+  top: 286px;
+}
+.nav-button:nth-of-type(7):hover {
+  color: var(--navbar-dark-primary);
+}
+.nav-button:nth-of-type(7):hover ~ #nav-content-highlight {
+  top: 340px;
+}
+.nav-button:nth-of-type(8):hover {
+  color: var(--navbar-dark-primary);
+}
+.nav-button:nth-of-type(8):hover ~ #nav-content-highlight {
+  top: 394px;
+}
+.nav-button:nth-of-type(9):hover {
+    color: var(--navbar-dark-primary);
+  }
+  .nav-button:nth-of-type(9):hover ~ #nav-content-highlight {
+    top: 448px;
+  }
+  .nav-button:nth-of-type(10):hover {
+    color: var(--navbar-dark-primary);
+  }
+  .nav-button:nth-of-type(10):hover ~ #nav-content-highlight {
+    top: 502px;
+  }
+  .nav-button:nth-of-type(11):hover {
+    color: var(--navbar-dark-primary);
+  }
+  .nav-button:nth-of-type(11):hover ~ #nav-content-highlight {
+    top: 556px;
+  }
+  .nav-button:nth-of-type(12):hover {
+    color: var(--navbar-dark-primary);
+  }
+  .nav-button:nth-of-type(12):hover ~ #nav-content-highlight {
+    top: 610px;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+#nav-bar .fas {
+  min-width: 3rem;
+  text-align: center;
+}
+
+
+
+
+/* Hover effect for navbar items (text and icon) */
+.nav-button:hover {
+  color: var( --navbar-dark-primary); /* Change text color to blue on hover */
+}
+
+
+
+
+.nav-button:hover i {
+  color: var( --navbar-dark-primary); /* Change icon color to blue on hover */
+}
+
+
+
+
+.nav-button:hover span {
+  color: var( --navbar-dark-primary); /* Change text color to blue on hover */
+}
+
+
+
+
+/* Active navbar button style */
+.nav-button.active {
+  color: var( --navbar-dark-primary); /* Set text color to blue for active button */
+  background-color: white;
+  border-radius: 16px 0 0 16px ; /* Set background to white for visibility */
+}
+
+
+
+
+.nav-button.active i {
+  color: var( --navbar-dark-primary); /* Set icon color to blue for active button */
+}
+
+
+
+
+.nav-button.active span {
+  color: var( --navbar-dark-primary); /* Set text color to blue for active button */
+}
+
+
+
+
+
+
+
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    color: white;
+    position: fixed;
+    top: 5px;
+    left: 85%;
+    right: 20%;
+    z-index: 100;
+}
+
+
+
+
+.header-right {
+    display: flex;
+    align-items: center;
+ 
+}
+
+
+
+
+
+
+
+
+.logout-btn, .profile-text {
+    padding: 10px 15px;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+
+
+
+
+
+
+
+.logout-btn {
+    background-color: #005bea;
+    border-radius: 100px;
+    padding: 10px 50px;
+}
+
+
+
+
+
+
+
+
+.logout-btn:hover {
+    background-color: #cc3b3b;
+}
+
+
+
+
+
+
+
+
+.profile-text {
+    color:  #005bea;
+    border-radius: 100px;
+    font-size: 40px ;
+
+
+
+
+}
+
+
+
+
+
+
+
+
+/* General Reset */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+  }
+ 
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align content at the top */
+    flex-wrap: wrap;
+    user-select: none;
+    padding-top: 20px;
+  }
+ 
+  /* Main Content Container */
+ 
+  /* Title Container */
+ 
+.title-container {
+    text-align: center;
+    margin-bottom: 30px;
+    background-color: #005bea;
+    border-radius: 100px;
+    margin-top: 70px;
+    justify-content: center;
+    margin-top: 50px;
+
+
+
+
+  }
+ 
+  .title-container h1 {
+    align-items: center;
+    color: #ffffff;
+    font-size: 35px;
+    font-weight: 600;
+    padding: 0;
+    justify-content: center;
+    padding-right: 30px;
+    padding-left: 30px;
+  }
+
+
+
+
+  /* Apply smooth transitions to layout changes */
+.card-container, .title-container {
+    transition: margin-left 0.3s ease, margin-top 0.3s ease;
+  }
+ 
+  /* Parent Container */
+  .parent-container {
+    display: flex;
+    flex-direction: column; /* Ensure the content stays in a vertical layout */
+    align-items: flex-start;
+    margin-left: calc(var(--navbar-width) + 52px); /* Adjust based on the expanded navbar width */
+   
+    width: 100%; /* Ensure full width */
+    flex-grow: 1; /* Allow it to take up remaining space */
+  }
+
+
+ 
+ 
+  /* Filter Box Styling */
+  .filter-boxes {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px; /* Space between the filter inputs */
+    margin-bottom: 20px;
+    width: 100%; /* Ensure full width */
+  }
+ 
+  .filter-boxes label {
+    font-size: 1rem;
+  }
+ 
+  .filter-boxes select {
+    padding: 8px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 200px;
+    flex-shrink: 0;
+  }
+ 
+  /* History Entry Styling */
+  .history-entry {
+    display: flex;
+    justify-content: space-between;
+    width: 80%; /* Set width to 100% for full-width entries */
+    margin-bottom: 20px; /* Space between entries */
+    border: 1px solid #ddd;
+    padding: 15px;
+    background-color: #f4f4f4;
+    border-radius: 8px; /* Rounded corners */
+   
+  }
+ 
+  /* Input & Output Boxes */
+  .input-container,
+  .output-container {
+    width: 45%; /* 45% width for each container */
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+ 
+  .input-container h3,
+  .output-container h3 {
+    font-size: 1.25rem;
+    margin-bottom: 10px;
+  }
+ 
+  .input-container p,
+  .output-container p {
+    font-size: 1rem;
+    color: #333;
+    word-wrap: break-word;
+    user-select: text;
+  }
+ 
+ 
+  .additional-details {
+    width: 100%;
+    margin-top: 15px;
+    padding: 15px;
+    background-color: transparent;
+  }
+ 
+  .additional-details p {
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+ 
+  /* Divider between sections */
+  hr {
+    width: 100%;
+    margin: 20px 0;
+    border: 0;
+    border-top: 1px solid #ddd;
+  }
+ 
