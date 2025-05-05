@@ -32,3 +32,26 @@ CREATE TABLE conversion (
     mode_id VARCHAR(10) PRIMARY KEY,
     type_of_conversion VARCHAR(100) NOT NULL
 );
+
+INSERT INTO conversion (mode_id, type_of_conversion) VALUES
+('TXTAFF', 'Text to Affine Cipher'),
+('AFFTXT', 'Affine Cipher to Text'),
+('TXTATB', 'Text to Atbash Cipher'),
+('ATBTXT', 'Atbash Cipher to Text'),
+('TXTB64', 'Text to Base64'),
+('B64TXT', 'Base64 to Text'),
+('TXTBI', 'Text to Binary'),
+('BITXT', 'Binary to Text'),
+('TXTCAE', 'Text to Caesar Cipher'),
+('CAETXT', 'Caesar Cipher to Text'),
+('TXTHEX', 'Text to HexaDecimal'),
+('HEXTXT', 'HexaDecimal to Text'),
+('TXTMRS', 'Text to Morse Code'),
+('MRSTXT', 'Morse Code to Text'),
+('TXTRLF', 'Text to Rail Fence Cipher'),
+('RLFTXT', 'Rail Fence Cipher to Text'),
+('TXTR13', 'Text to ROT13 Cipher'),
+('R13TXT', 'ROT13 Cipher to Text'),
+('TXTVIG', 'Text to Vigenère Cipher'),
+('VIGTXT', 'Vigenère Cipher to Text');
+
