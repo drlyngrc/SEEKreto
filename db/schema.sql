@@ -55,3 +55,19 @@ INSERT INTO conversion (mode_id, type_of_conversion) VALUES
 ('TXTVIG', 'Text to Vigenère Cipher'),
 ('VIGTXT', 'Vigenère Cipher to Text');
 
+CREATE TABLE history (
+    history_id VARCHAR(10) PRIMARY KEY,  
+    user_id VARCHAR(10),                               
+    crypt_id VARCHAR(5),                       
+    mode_id VARCHAR(10),                       
+    date_time DATETIME DEFAULT CURRENT_TIMESTAMP,  
+    `key` VARCHAR(255) DEFAULT 'n/a',
+    a_value INT DEFAULT NULL,                  
+    b_value INT DEFAULT NULL,          
+    rail INT DEFAULT NULL,                     
+    input MEDIUMTEXT NOT NULL,                 
+    output MEDIUMTEXT NOT NULL,                               
+    FOREIGN KEY (user_id) REFERENCES users(user_id),  
+    FOREIGN KEY (crypt_id) REFERENCES ciphers(crypt_id),  
+    FOREIGN KEY (mode_id) REFERENCES conversion(mode_id)  
+);
