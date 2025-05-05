@@ -21,10 +21,14 @@ db = mysql.connector.connect(
 )
 cursor = db.cursor()
 
+
+# Main route
 @app.route('/')
 def index():
     return render_template('index.html')
 
+
+# Test database
 @app.route('/test-db')
 def test_db():
     try:
@@ -34,6 +38,8 @@ def test_db():
     except Exception as e:
         return f"Database error: {e}"
 
+
+# Register
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -76,6 +82,8 @@ def register():
 
     return render_template('register.html')
 
+
+#Login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 	
@@ -100,6 +108,8 @@ def login():
 
 	return render_template('login.html')
 
+
+# Homepage
 @app.route('/homepage')
 def homepage():
     if 'user_id' not in session:
@@ -143,6 +153,58 @@ def homepage():
     return render_template('homepage.html', username=username, email=email, name=name, user_id=user_id) # favorite_ciphers=favorite_ciphers
 
 
+# Favorites
+@app.route('/favorites')
+def favorites():
+     
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+
+    
+    cursor.execute("""
+        SELECT c.type_of_tool, f.description, f.icon_text, f.href
+        FROM favorites f
+        JOIN ciphers c ON f.crypt_id = c.crypt_id
+        WHERE f.user_id = %s
+        ORDER BY c.type_of_tool ASC
+    """, (user_id,))
+    favorites = cursor.fetchall()
+
+    
+    if favorites:
+        
+        return render_template('favorites.html', favorites=favorites, email=email, username=username, name=name)
+    else:
+       
+        flash("You don't have any favorites yet. Add some from the homepage!")
+        return render_template('favorites.html', favorites=[], email=email, username=username, name=name)
+
+
+# Contacts
 @app.route('/contacts')
 def contacts():
     email = None  
@@ -173,6 +235,7 @@ def contacts():
     return render_template('contacts.html', email=email, username=username, name=name)
 
 
+# Logout
 @app.route('/logout')
 def logout():
     session.pop('username', None)
