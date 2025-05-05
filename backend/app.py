@@ -21,10 +21,14 @@ db = mysql.connector.connect(
 )
 cursor = db.cursor()
 
+
+# Main route
 @app.route('/')
 def index():
     return render_template('index.html')
 
+
+# Test database connection
 @app.route('/test-db')
 def test_db():
     try:
@@ -34,6 +38,8 @@ def test_db():
     except Exception as e:
         return f"Database error: {e}"
 
+
+# Register
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -76,9 +82,10 @@ def register():
 
     return render_template('register.html')
 
+
+#Login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-	
 	if request.method == 'POST':
 		identifier = request.form['identifier']
 		password = request.form['password']
@@ -100,6 +107,86 @@ def login():
 
 	return render_template('login.html')
 
+
+# Forgot password
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+
+       
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+
+        if user:
+            token = s.dumps(email, salt='password-reset')
+
+            cursor.execute("UPDATE users SET reset_token = %s WHERE email = %s", (token, email))
+            db.commit()
+
+           
+            reset_url = url_for('reset_password', token=token, _external=True)
+
+            html_body = f"""
+            <html>
+                <body>
+                    <div style="text-align: center; font-family: Arial, sans-serif;">
+                        <h1 style="color: blue;">CodeCrypt</h1>
+                        <p><strong>Encrypt It, Decrypt It,<br>Keep It Safe with CodeCrypt</strong></p>
+                        <p>Hey, {user[3]}</p>
+                        <p>Your CodeCrypt password can be reset by clicking the link below. If you did not request a new password, please ignore this email.</p>
+                        <p><a href="{reset_url}" style="text-decoration: none; font-size: 16px; font-weight: bold; color: #007BFF;">Click this to reset your password</a></p>
+                    </div>
+                </body>
+            </html>
+            """
+
+            msg = Message('Reset Your Password', recipients=[email])
+            msg.html = html_body  
+
+            try:
+                mail.send(msg)
+                flash('A password reset link has been sent to your email.', 'success')
+            except Exception as e:
+                flash(f'Error sending email: {str(e)}', 'danger')
+                return redirect(url_for('login'))
+
+            return redirect(url_for('login'))
+        else:
+            flash('No account found with that email.', 'danger')
+
+    return render_template('login.html')
+
+
+# Reset password
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        email = s.loads(token, salt='password-reset', max_age=3600)
+    except SignatureExpired:
+        flash('The reset link is expired.', 'danger')
+        return redirect(url_for('login'))
+    except Exception as e:
+        flash('The reset link is invalid or has expired.', 'danger')
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        new_password = request.form['new_password']
+        hashed_password = generate_password_hash(new_password)
+
+        
+        cursor.execute("UPDATE users SET password = %s WHERE email = %s", (hashed_password, email))
+        db.commit()
+
+        cursor.execute("UPDATE users SET reset_token = NULL WHERE email = %s", (email,))
+        db.commit()
+
+        flash('Your password has been reset successfully.', 'success')
+        return redirect(url_for('login'))
+
+    return render_template('reset_password.html', token=token)
+
+# Homepage
 @app.route('/homepage')
 def homepage():
     if 'user_id' not in session:
@@ -134,46 +221,174 @@ def homepage():
     favorites = cursor.fetchall()
 
     favorite_ciphers = {favorite[0] for favorite in favorites}
+    print("Favorite Ciphers:", favorite_ciphers)
     
     return render_template('homepage.html', username=username, email=email, name=name, 
                           user_id=user_id, favorite_ciphers=favorite_ciphers)
 
+# Change password
+@app.route("/changepassword", methods=["POST"])
+def change_password():
+    if request.method == "POST":
+        user_id = session.get("user_id") 
+
+        current_password = request.form["currentPassword"]
+        new_password = request.form["newPassword"]
+        confirm_password = request.form["confirmPassword"]
+
+        cursor.execute("SELECT password FROM users WHERE user_id = %s", (user_id,))
+        user_data = cursor.fetchone()
+
+        if user_data:
+            hashed_password = user_data[0]  
+
+            if not check_password_hash(hashed_password, current_password):
+                flash("Current password is incorrect.", "error")
+                return redirect(url_for("homepage")) 
+
+            if current_password == new_password:
+                flash("Current password and new password cannot be the same.", "error")
+                return redirect(url_for("homepage"))
+
+            if new_password != confirm_password:
+                flash("New password and confirmation do not match.", "error")
+                return redirect(url_for("homepage"))
+            
+            hashed_new_password = generate_password_hash(new_password)
+            cursor.execute("UPDATE users SET password = %s WHERE user_id = %s", (hashed_new_password, user_id))
+            db.commit()
+            flash("Password changed successfully!", "success")
+            return redirect(url_for("homepage")) 
+
+        flash("User not found.", "error")
+        return redirect(url_for("homepage")) 
+
+    return redirect(url_for("homepage"))
+
+
+# Change name
+@app.route('/changename', methods=['POST'])
+def change_name():
+    if request.method == "POST":
+        if 'user_id' not in session:
+            return redirect(url_for('login'))  
+
+        user_id = session['user_id']
+        new_name = request.form['newName']
+
+        
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        user_data = cursor.fetchone()
+
+        if user_data:
+            current_name = user_data[0] 
+
+            if current_name == new_name:
+                flash("Current name and new name cannot be the same.", "error")
+                return redirect(url_for("homepage"))
+
+
+            cursor.execute("UPDATE users SET name = %s WHERE user_id = %s", (new_name, user_id))
+            db.commit()
+            flash("Name changed successfully!", "success")
+            return redirect(url_for("homepage"))  
+
+        flash("User not found.", "error")
+        return redirect(url_for("homepage"))  
+
+    
+    return redirect(url_for('homepage'))
+
+
+# Change username
+@app.route('/changeusername', methods=['POST'])
+def change_username():
+    if request.method == "POST": 
+        if 'user_id' not in session:
+            return redirect(url_for('login'))  
+
+        user_id = session['user_id']
+        current_username = session.get('username')
+        new_username = request.form.get('newUsername')
+
+        if current_username:
+            
+            if current_username == new_username:
+                flash("Current username and new username cannot be the same.", "error")
+                return redirect(url_for("homepage"))
+
+            
+            cursor.execute("SELECT COUNT(*) FROM users WHERE username = %s", (new_username,))
+            result = cursor.fetchone()
+            if result and result[0] > 0:
+                flash("Username already exists. Enter another one.", "error")
+                return redirect(url_for("homepage"))
+
+            
+            cursor.execute("UPDATE users SET username = %s WHERE user_id = %s", (new_username, user_id))
+            db.commit()
+            
+            session['username'] = new_username
+            flash("Username updated successfully!", "success")
+            return redirect(url_for("homepage"))
+
+        flash("User not found.", "error")
+        return redirect(url_for("homepage"))
+
+    return redirect(url_for('homepage'))
+
+
+# Favorites
 @app.route('/favorites')
 def favorites():
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+        
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    
-    user_id = session['user_id']
-    username = session.get('username', 'Guest')
-    
-    cursor.execute("SELECT email, name FROM users WHERE user_id = %s", (user_id,))
-    user_details = cursor.fetchone()
-    
-    if user_details:
-        email = user_details[0]
-        name = user_details[1]
-    else:
-        email = 'Error fetching'
-        name = 'Error fetching'
+
+
     
     cursor.execute("""
-        SELECT 
-            c.type_of_tool, 
-            f.description, 
-            f.icon_text, 
-            f.href
-        FROM 
-            favorites f
-        JOIN 
-            ciphers c ON f.crypt_id = c.crypt_id
-        WHERE 
-            f.user_id = %s
+        SELECT c.type_of_tool, f.description, f.icon_text, f.href
+        FROM favorites f
+        JOIN ciphers c ON f.crypt_id = c.crypt_id
+        WHERE f.user_id = %s
+        ORDER BY c.type_of_tool ASC
     """, (user_id,))
-    
     favorites = cursor.fetchall()
-    
-    return render_template('favorites.html', favorites=favorites, username=username, email=email, name=name)
 
+    
+    if favorites:
+        
+        return render_template('favorites.html', favorites=favorites, email=email, username=username, name=name)
+    else:
+       
+        flash("You don't have any favorites yet. Add some from the homepage!")
+        return render_template('favorites.html', favorites=[], email=email, username=username, name=name)
+
+
+# Toggle favorites
 @app.route('/toggle-favorite', methods=['POST'])
 def toggle_favorite():
     if 'user_id' not in session:
@@ -235,6 +450,8 @@ def toggle_favorite():
             db.rollback()
             return jsonify({"success": False, "message": f"Database error: {str(e)}"}), 500
 
+
+# Contacts
 @app.route('/contacts')
 def contacts():
     email = None  
@@ -263,6 +480,62 @@ def contacts():
         return redirect(url_for('login'))
 
     return render_template('contacts.html', email=email, username=username, name=name)
+
+
+# History
+def insert_history(user_id, crypt_id, mode_id, a_value=None, b_value=None, shift=None, key=None, rail=None, input_text="", output_text=""):
+    try:
+        if output_text == "Error. Invalid input. Please enter again.":
+            return  
+     
+        cursor.execute("SELECT crypt_id FROM ciphers WHERE type_of_tool = %s", (crypt_id,))
+        crypt_id = cursor.fetchone()[0]
+
+       
+        cursor.execute("SELECT mode_id FROM conversion WHERE type_of_conversion = %s", (mode_id,))
+        mode_id = cursor.fetchone()[0]
+
+       
+        cursor.execute("SELECT MAX(history_id) FROM history")
+        max_history_id = cursor.fetchone()[0]
+        if max_history_id:
+            last_id_number = int(max_history_id.replace('histo', ''))
+            new_history_id = f"histo{last_id_number + 1:05d}"
+        else:
+            new_history_id = "histo00001"
+
+       
+        columns = ["history_id", "user_id", "crypt_id", "mode_id", "input", "output"]
+        values = [new_history_id, user_id, crypt_id, mode_id, input_text, output_text]
+        
+        
+        if a_value is not None:
+            columns.append("a_value")
+            values.append(a_value)
+        if b_value is not None:
+            columns.append("b_value")
+            values.append(b_value)
+        if shift is not None:
+            columns.append("shift")
+            values.append(shift)
+        if key is not None:
+            columns.append("`key`")  
+            values.append(key)
+        if rail is not None:
+            columns.append("rail")
+            values.append(rail)
+
+      
+        sql_query = f"INSERT INTO history ({', '.join(columns)}) VALUES ({', '.join(['%s'] * len(values))})"
+        cursor.execute(sql_query, values)
+
+      
+        db.commit()
+
+    except Exception as e:
+        print(f"Error inserting history: {e}")
+        db.rollback()
+
 
 @app.route('/allhistory', methods=['GET'])
 def all_history():
@@ -354,6 +627,9 @@ def all_history():
    
     return render_template('allhistory.html', history=history, email=email, username=username, name=name)
 
+
+
+# --------------- CIPHERS ---------------
 def atbash_cipher(text):
     alphabet_upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     reversed_alphabet_upper = 'ZYXWVUTSRQPONMLKJIHGFEDCBA'
@@ -552,7 +828,6 @@ def affine_encrypt(text, a, b):
         else:
             result += char 
     return result
-
 
 def affine_decrypt(text, a, b):
     result = ""
@@ -977,6 +1252,7 @@ def rot13_cipher(text):
             result += char
     return result
 
+
 @app.route('/rot13', methods=['GET', 'POST'])
 def rot13():
     result = ""
@@ -1026,115 +1302,6 @@ def rot13():
         insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, text, result)
 
     return render_template('rot13.html', result=result, email=email, username=username, name=name, user_id=user_id)  
-
-def vigenere_encrypt(text, key):
-    result = ""
-    key_length = len(key)
-    key_as_int = [ord(k.lower()) - ord('a') for k in key if k.isalpha()]
-    
-    if len(key_as_int) == 0:
-        return "Error: Key must contain at least one letter."
-    
-    i = 0
-    for char in text:
-        if char.isalpha():
-            is_upper = char.isupper()
-            char_num = ord(char.lower()) - ord('a')
-            key_index = i % len(key_as_int)
-            shift = key_as_int[key_index]
-            shifted = (char_num + shift) % 26
-            new_char = chr(shifted + ord('a'))
-            if is_upper:
-                new_char = new_char.upper()
-            result += new_char
-            i += 1
-        else:
-            result += char
-    
-    return result
-
-def vigenere_decrypt(text, key):
-    result = ""
-    key_length = len(key)
-    key_as_int = [ord(k.lower()) - ord('a') for k in key if k.isalpha()]
-    
-    if len(key_as_int) == 0:
-        return "Error: Key must contain at least one letter."
-    
-    i = 0
-    for char in text:
-        if char.isalpha():
-            is_upper = char.isupper()
-            char_num = ord(char.lower()) - ord('a')
-            key_index = i % len(key_as_int)
-            shift = key_as_int[key_index]
-            shifted = (char_num - shift) % 26
-            new_char = chr(shifted + ord('a'))
-            if is_upper:
-                new_char = new_char.upper()
-            result += new_char
-            i += 1
-        else:
-            result += char
-    
-    return result
-
-@app.route('/vigenere', methods=['GET', 'POST'])
-def vigenere_cipher():
-    result = ""
-    email = None
-    name = None
-    username = None
-    user_id = session.get('user_id')
-
-    if user_id:
-        username = session.get('username', 'Guest')
-
-        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
-        email_result = cursor.fetchone()
-        if email_result:
-            email = email_result[0]
-        else:
-            email = 'Error fetching.'
-
-        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
-        name_result = cursor.fetchone()
-        if name_result:
-            name = name_result[0]
-        else:
-            name = 'Error fetching.'
-
-    if request.method == 'POST':
-        user_id = session.get('user_id')
-        if not user_id:
-            return redirect(url_for('login'))
-        
-        mode = request.form.get('mode')
-        
-        if not mode:
-            flash("Please select an option before entering text.")
-            return redirect(url_for('vigenere'))
-        
-        input_text = request.form.get('input_text', '')
-        key = request.form.get('key', '')
-        
-        if not key:
-            flash("Please enter a key for the Vigenère cipher.")
-            return redirect(url_for('vigenere'))
-        
-        crypt_id = 'Vigenère Cipher'
-        
-        if mode == 'toCipher':
-            mode_id = 'Text to Vigenère Cipher'
-            result = vigenere_encrypt(input_text, key)
-        elif mode == 'toText':
-            mode_id = 'Vigenère Cipher to Text'
-            result = vigenere_decrypt(input_text, key)
-        
-        insert_history(user_id, crypt_id, mode_id, None, None, None, key, None, input_text, result)
-
-    return render_template('vigenere.html', result=result, email=email, username=username, name=name, user_id=user_id)
-
 def insert_history(user_id, crypt_id, mode_id, a_value=None, b_value=None, shift=None, key=None, rail=None, input_text="", output_text=""):
     try:
         cursor.execute("SELECT crypt_id FROM ciphers WHERE type_of_tool = %s", (crypt_id,))
@@ -1161,24 +1328,72 @@ def insert_history(user_id, crypt_id, mode_id, a_value=None, b_value=None, shift
             hist_number = int(last_hist_id.replace("HIST", "")) + 1
             new_hist_id = f"HIST{hist_number:04d}"
         else:
-            new_hist_id = "HIST0001"
-        
-        cursor.execute("""
-            INSERT INTO history 
-            (hist_id, user_id, crypt_id, mode_id, a_value, b_value, shift, key, rail, input, output, date_time) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
-        """, (new_hist_id, user_id, crypt_id_value, mode_id_value, a_value, b_value, shift, key, rail, input_text, output_text))
-        
-        db.commit()
-        print(f"History record {new_hist_id} added successfully.")
-        
-    except mysql.connector.Error as e:
-        db.rollback()
-        print(f"Database error adding history: {str(e)}")
-        
-    except Exception as e:
-        print(f"Error adding history: {str(e)}")
+            result.append(char)
 
+    return ''.join(result)
+
+
+@app.route('/vigenere', methods=['GET', 'POST'])
+def vigenere():
+    result = ""
+    email = None  
+    name = None  
+    username = None 
+    user_id = session.get('user_id')  
+
+    if user_id:
+        username = session.get('username', 'Guest')
+
+
+        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        email_result = cursor.fetchone()
+        if email_result:
+            email = email_result[0]
+        else:
+            email = 'Error fetching.'
+
+        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
+        name_result = cursor.fetchone()
+        if name_result:
+            name = name_result[0]
+        else:
+            name = 'Error fetching.'
+
+    if request.method == 'POST':
+         
+        user_id = session.get('user_id')
+        if not user_id:
+           
+            return redirect(url_for('login'))
+        
+        
+        mode = request.form.get('mode')
+        
+        
+        if not mode:
+            flash("Please select an option before entering text.")
+            return redirect(url_for('vigenere'))  
+        
+       
+        keyword = request.form.get('keyword', 'key').upper()
+        text = request.form.get('input_text', '')
+
+        if keyword and text:
+            if mode == 'encode':
+                mode_id = 'Text to Vigenère Cipher'
+                result = vigenere_cipher(text, keyword, mode)
+            elif mode == 'decode':
+                mode_id = 'Vigenère Cipher to Text'
+                result = vigenere_cipher(text, keyword, mode)
+    
+        crypt_id = 'Vigenère Cipher'
+        insert_history(user_id, crypt_id, mode_id, None, None, None, keyword, None, text, result)
+    return render_template('vigenere.html', result=result, email=email, username=username, name=name, user_id=user_id)
+
+
+
+
+# Logout
 @app.route('/logout')
 def logout():
     session.pop('username', None)
