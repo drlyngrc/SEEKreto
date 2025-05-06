@@ -1388,6 +1388,33 @@ def insert_history(user_id, crypt_id, mode_id, a_value=None, b_value=None, shift
         print(f"Error inserting history: {e}")
         db.rollback()
 
+def vigenere_cipher(text, keyword, mode="encode"):
+    result = []
+    keyword_repeated = ""
+    keyword_index = 0
+
+    
+    for char in text:
+        if char.isalpha():
+            keyword_repeated += keyword[keyword_index % len(keyword)].upper()
+            keyword_index += 1
+        else:
+            keyword_repeated += ' '  
+
+ 
+    for i, char in enumerate(text):
+        if char.isalpha():
+            shift = ord(keyword_repeated[i]) - ord('A')
+            if mode == "decode":
+                shift = -shift
+            base = ord('A') if char.isupper() else ord('a')
+            result.append(chr((ord(char) - base + shift) % 26 + base))
+        else:
+            result.append(char)
+
+    return ''.join(result)
+
+
 @app.route('/vigenere', methods=['GET', 'POST'])
 def vigenere():
     result = ""
@@ -1444,9 +1471,6 @@ def vigenere():
         crypt_id = 'Vigenère Cipher'
         insert_history(user_id, crypt_id, mode_id, None, None, None, keyword, None, text, result)
     return render_template('vigenere.html', result=result, email=email, username=username, name=name, user_id=user_id)
-
-
-
 
 # Logout
 @app.route('/logout')
