@@ -1323,71 +1323,6 @@ def rot13():
 
     return render_template('rot13.html', result=result, email=email, username=username, name=name, user_id=user_id)  
 
-def insert_history(user_id, crypt_id, mode_id, a_value=None, b_value=None, shift=None, key=None, rail=None, input_text="", output_text=""):
-    try:
-        if output_text == "Error. Invalid input. Please enter again.":
-            return
-        
-        # Get the actual crypt_id from the cipher type string
-        cursor.execute("SELECT crypt_id FROM ciphers WHERE type_of_tool = %s", (crypt_id,))
-        result = cursor.fetchone()
-        if not result:
-            print(f"Cipher type not found: {crypt_id}")
-            return
-        crypt_id_actual = result[0]
-
-        # Get the actual mode_id from the conversion type string
-        cursor.execute("SELECT mode_id FROM conversion WHERE type_of_conversion = %s", (mode_id,))
-        result = cursor.fetchone()
-        if not result:
-            print(f"Conversion mode not found: {mode_id}")
-            return
-        mode_id_actual = result[0]
-
-        # Generate new history ID
-        cursor.execute("SELECT MAX(history_id) FROM history")
-        result = cursor.fetchone()
-        max_history_id = result[0] if result and result[0] else None
-        
-        if max_history_id:
-            last_id_number = int(max_history_id.replace('histo', ''))
-            new_history_id = f"histo{last_id_number + 1:05d}"
-        else:
-            new_history_id = "histo00001"
-
-        # Prepare columns and values for insertion
-        columns = ["history_id", "user_id", "crypt_id", "mode_id", "input", "output"]
-        values = [new_history_id, user_id, crypt_id_actual, mode_id_actual, input_text, output_text]
-        
-        # Add optional parameters if provided
-        if a_value is not None:
-            columns.append("a_value")
-            values.append(a_value)
-        if b_value is not None:
-            columns.append("b_value")
-            values.append(b_value)
-        if shift is not None:
-            columns.append("shift")
-            values.append(shift)
-        if key is not None:
-            columns.append("`key`")  # Backticks for reserved keyword
-            values.append(key)
-        if rail is not None:
-            columns.append("rail")
-            values.append(rail)
-
-        # Construct and execute the SQL query
-        sql_query = f"INSERT INTO history ({', '.join(columns)}) VALUES ({', '.join(['%s'] * len(values))})"
-        cursor.execute(sql_query, values)
-        
-        # Commit the transaction
-        db.commit()
-        print(f"History entry {new_history_id} added successfully")
-
-    except Exception as e:
-        print(f"Error inserting history: {e}")
-        db.rollback()
-
 def vigenere_cipher(text, keyword, mode="encode"):
     result = []
     keyword_repeated = ""
@@ -1471,6 +1406,72 @@ def vigenere():
         crypt_id = 'Vigenère Cipher'
         insert_history(user_id, crypt_id, mode_id, None, None, None, keyword, None, text, result)
     return render_template('vigenere.html', result=result, email=email, username=username, name=name, user_id=user_id)
+
+def insert_history(user_id, crypt_id, mode_id, a_value=None, b_value=None, shift=None, key=None, rail=None, input_text="", output_text=""):
+    try:
+        if output_text == "Error. Invalid input. Please enter again.":
+            return
+        
+        # Get the actual crypt_id from the cipher type string
+        cursor.execute("SELECT crypt_id FROM ciphers WHERE type_of_tool = %s", (crypt_id,))
+        result = cursor.fetchone()
+        if not result:
+            print(f"Cipher type not found: {crypt_id}")
+            return
+        crypt_id_actual = result[0]
+
+        # Get the actual mode_id from the conversion type string
+        cursor.execute("SELECT mode_id FROM conversion WHERE type_of_conversion = %s", (mode_id,))
+        result = cursor.fetchone()
+        if not result:
+            print(f"Conversion mode not found: {mode_id}")
+            return
+        mode_id_actual = result[0]
+
+        # Generate new history ID
+        cursor.execute("SELECT MAX(history_id) FROM history")
+        result = cursor.fetchone()
+        max_history_id = result[0] if result and result[0] else None
+        
+        if max_history_id:
+            last_id_number = int(max_history_id.replace('histo', ''))
+            new_history_id = f"histo{last_id_number + 1:05d}"
+        else:
+            new_history_id = "histo00001"
+
+        # Prepare columns and values for insertion
+        columns = ["history_id", "user_id", "crypt_id", "mode_id", "input", "output"]
+        values = [new_history_id, user_id, crypt_id_actual, mode_id_actual, input_text, output_text]
+        
+        # Add optional parameters if provided
+        if a_value is not None:
+            columns.append("a_value")
+            values.append(a_value)
+        if b_value is not None:
+            columns.append("b_value")
+            values.append(b_value)
+        if shift is not None:
+            columns.append("shift")
+            values.append(shift)
+        if key is not None:
+            columns.append("`key`")  # Backticks for reserved keyword
+            values.append(key)
+        if rail is not None:
+            columns.append("rail")
+            values.append(rail)
+
+        # Construct and execute the SQL query
+        sql_query = f"INSERT INTO history ({', '.join(columns)}) VALUES ({', '.join(['%s'] * len(values))})"
+        cursor.execute(sql_query, values)
+        
+        # Commit the transaction
+        db.commit()
+        print(f"History entry {new_history_id} added successfully")
+
+    except Exception as e:
+        print(f"Error inserting history: {e}")
+        db.rollback()
+
 
 # Logout
 @app.route('/logout')
