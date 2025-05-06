@@ -1073,6 +1073,10 @@ def morse_encode(text):
     return ' '.join(encoded_text)
 
 def morse_decode(text):
+    """
+    Decode Morse code to text with improved error handling.
+    Returns tuple of (result, error_message)
+    """
     morse_code_dict = {
         '.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E', '..-.': 'F', 
         '--.': 'G', '....': 'H', '..': 'I', '.---': 'J', '-.-': 'K', '.-..': 'L', 
@@ -1088,18 +1092,45 @@ def morse_decode(text):
         '...-..-': '$', '.--.-.': '@', '/': ' '
     }
     
-    words = text.strip().split('   ')
-    decoded_text = []
+    # Check if input is empty
+    if not text.strip():
+        return None, "Empty input provided."
     
-    for word in words:
-        chars = word.split(' ')
-        word_chars = []
-        for char in chars:
-            if char in morse_code_dict:
-                word_chars.append(morse_code_dict[char])
-        decoded_text.append(''.join(word_chars))
+    # Validate input contains only valid Morse code characters
+    valid_chars = set(['.', '-', ' ', '/'])
+    if not all(char in valid_chars for char in text):
+        return None, "Invalid characters in Morse code. Only '.', '-', ' ', and '/' are allowed."
     
-    return ' '.join(decoded_text)
+    try:
+        # Split by triple space for words
+        words = text.strip().split('   ')
+        
+        # Handle single word case
+        if len(words) == 1 and ' ' in text:
+            words = [text]
+        
+        decoded_text = []
+        
+        for word in words:
+            chars = word.split(' ')
+            word_chars = []
+            
+            for char in chars:
+                if not char:  # Skip empty segments
+                    continue
+                    
+                if char in morse_code_dict:
+                    word_chars.append(morse_code_dict[char])
+                else:
+                    return None, f"Invalid Morse code sequence: '{char}'"
+                    
+            decoded_text.append(''.join(word_chars))
+        
+        result = ' '.join(decoded_text)
+        return result, None
+        
+    except Exception as e:
+        return None, f"Error decoding Morse code: {str(e)}"
 
 @app.route('/morse', methods=['GET', 'POST'])
 def morse_code():
@@ -1143,14 +1174,22 @@ def morse_code():
         if mode == 'toMorse':
             mode_id = 'Text to Morse Code'
             result = morse_encode(input_text)
+            
+            # Only save successful encoding to database
+            if result:
+                insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, input_text, result)
+            
         elif mode == 'toText':
             mode_id = 'Morse Code to Text'
-            try:
-                result = morse_decode(input_text)
-            except Exception as e:
-                result = f"Error decoding Morse code: {str(e)}"
-
-        insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, input_text, result)
+            decoded_result, error = morse_decode(input_text)
+            
+            if error:
+                # Display error message in the result box
+                result = f"Error: {error}"
+            else:
+                result = decoded_result
+                # Only save to database if there was no error
+                insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, input_text, result)
 
     return render_template('morse.html', result=result, email=email, username=username, name=name, user_id=user_id)
 
@@ -1323,89 +1362,6 @@ def rot13():
 
     return render_template('rot13.html', result=result, email=email, username=username, name=name, user_id=user_id)  
 
-def vigenere_cipher(text, keyword, mode="encode"):
-    result = []
-    keyword_repeated = ""
-    keyword_index = 0
-
-    
-    for char in text:
-        if char.isalpha():
-            keyword_repeated += keyword[keyword_index % len(keyword)].upper()
-            keyword_index += 1
-        else:
-            keyword_repeated += ' '  
-
- 
-    for i, char in enumerate(text):
-        if char.isalpha():
-            shift = ord(keyword_repeated[i]) - ord('A')
-            if mode == "decode":
-                shift = -shift
-            base = ord('A') if char.isupper() else ord('a')
-            result.append(chr((ord(char) - base + shift) % 26 + base))
-        else:
-            result.append(char)
-
-    return ''.join(result)
-
-
-@app.route('/vigenere', methods=['GET', 'POST'])
-def vigenere():
-    result = ""
-    email = None  
-    name = None  
-    username = None 
-    user_id = session.get('user_id')  
-
-    if user_id:
-        username = session.get('username', 'Guest')
-
-
-        cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
-        email_result = cursor.fetchone()
-        if email_result:
-            email = email_result[0]
-        else:
-            email = 'Error fetching.'
-
-        cursor.execute("SELECT name FROM users WHERE user_id = %s", (user_id,))
-        name_result = cursor.fetchone()
-        if name_result:
-            name = name_result[0]
-        else:
-            name = 'Error fetching.'
-
-    if request.method == 'POST':
-         
-        user_id = session.get('user_id')
-        if not user_id:
-           
-            return redirect(url_for('login'))
-        
-        
-        mode = request.form.get('mode')
-        
-        
-        if not mode:
-            flash("Please select an option before entering text.")
-            return redirect(url_for('vigenere'))  
-        
-       
-        keyword = request.form.get('keyword', 'key').upper()
-        text = request.form.get('input_text', '')
-
-        if keyword and text:
-            if mode == 'encode':
-                mode_id = 'Text to Vigenère Cipher'
-                result = vigenere_cipher(text, keyword, mode)
-            elif mode == 'decode':
-                mode_id = 'Vigenère Cipher to Text'
-                result = vigenere_cipher(text, keyword, mode)
-    
-        crypt_id = 'Vigenère Cipher'
-        insert_history(user_id, crypt_id, mode_id, None, None, None, keyword, None, text, result)
-    return render_template('vigenere.html', result=result, email=email, username=username, name=name, user_id=user_id)
 
 def insert_history(user_id, crypt_id, mode_id, a_value=None, b_value=None, shift=None, key=None, rail=None, input_text="", output_text=""):
     try:
