@@ -5,7 +5,7 @@
   --background: #ffffff;
   --navbar-width: 256px;
   --navbar-width-min: 80px;
-  --navbar-dark-primary: #005bea;
+  --navbar-dark-primary: #0072b0;
   --navbar-dark-secondary: #2c3e50;
   --navbar-light-primary: #ffffff;
   --navbar-light-secondary: #ffffff;
@@ -117,7 +117,7 @@ html, body {
   transition: opacity 1s;
 }
 #nav-logo img {
-    width: 30px; 
+    width: 25px; 
     height: auto;
     margin-right: 10px;
     margin-left: 10px; 
@@ -385,7 +385,7 @@ header {
 
 
 .logout-btn {
-    background-color: #005bea;
+    background-color: #0072b0;
     border-radius: 100px;
     padding: 10px 50px;
 }
@@ -397,7 +397,7 @@ header {
 
 
 .profile-text {
-    color:  #005bea;
+    color:  #0072b0;
     border-radius: 100px;
     font-size: 40px ;
 
@@ -454,7 +454,7 @@ body {
 }
 
 .nav-item.active {
-    background-color: #005bea; 
+    background-color: #0072b0; 
     color: white; 
 }
 
@@ -527,14 +527,14 @@ form{
   right: -60px; 
   top: 50%;
   transform: translateY(-50%); 
-  color: #005bea;
+  color: #0072b0;
   padding-left: 80px;
   font-size: 30px;
 }
 
 
 .history-btn:hover {
-  color: #005bea; 
+  color: #0072b0; 
 }
 
 
@@ -550,25 +550,25 @@ input[type="number"] {
 
 
 input[type="number"]:focus {
-  border-color: #005bea;
+  border-color: #0072b0;
   box-shadow: 0 0 5px rgba(0, 94, 234, 0.5);
 }
 
 
 label {
   margin-bottom: 5px;
-  color: #005bea;
+  color: #0072b0;
   text-align: center;
 }
 
 
 #a_value {
-  border: solid 1px #005bea;
+  border: solid 1px #0072b0;
 }
 
 
 #b_value {
-  border: solid 1px #005bea;
+  border: solid 1px #0072b0;
 }
 
 
@@ -642,7 +642,7 @@ label {
   }
   
 #keyword {
-    border: solid 1px #005bea;
+    border: solid 1px #0072b0;
   }
 
 .keyword {
@@ -650,7 +650,7 @@ label {
 }
 
 #shift {
-  border: solid 1px #005bea;
+  border: solid 1px #0072b0;
 }
 
 .shift {
@@ -658,7 +658,7 @@ label {
 }
 
 #num_rails {
-  border: solid 1px #005bea;
+  border: solid 1px #0072b0;
 }
 
 .num_rails {
@@ -678,7 +678,7 @@ input[type="text"] {
   
   
   input[type="text"]:focus {
-    border-color: #005bea;
+    border-color: #0072b0;
     box-shadow: 0 0 5px rgba(0, 94, 234, 0.5);
   }
 
@@ -693,7 +693,7 @@ input[type="text"] {
   }
 
   input[type="checkbox"]:focus {
-    border-color: #005bea;
+    border-color: #0072b0;
     box-shadow: 0 0 5px rgba(0, 94, 234, 0.5);
   }
 
@@ -750,7 +750,7 @@ textarea {
 
 
 textarea:focus {
-  border-color: #005bea;
+  border-color: #0072b0;
   box-shadow: 0 0 5px rgba(0, 94, 234, 0.5);
 }
 
@@ -758,7 +758,7 @@ textarea:focus {
 .convert-btn {
   font-family: Poppins;
     padding: 10px 20px;
-    background-color: #005bea;
+    background-color: #0072b0;
     color: white;
     font-size: 16px;
     border: none;
@@ -783,7 +783,7 @@ textarea:focus {
 .title-container {
   text-align: center;
   margin-bottom: 30px;
-  background-color: #005bea;
+  background-color: #0072b0;
   border-radius: 100px;
   margin-top: 70px;
   justify-content: center;
@@ -805,7 +805,7 @@ textarea:focus {
 
 
 .allnavbar{
-  border: solid 1px #005bea ;
+  border: solid 1px #0072b0 ;
 }
 
 
@@ -1189,7 +1189,7 @@ body.dark-mode .user-name #user-name-details {
 }
 
 .confirm-btn {
-  background-color: #005bea;
+  background-color: #0072b0;
   color: white;
 }
 

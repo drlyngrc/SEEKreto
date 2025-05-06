@@ -65,7 +65,7 @@ body {
     padding: 10px 40px;
     border-radius: 50px;
     font-size: 1.1rem;
-    background-color: #005bea;
+    background-color: #0072b0;
     color: white;
     text-decoration: none;
     transition: background-color 0.3s ease-in-out;
@@ -192,7 +192,7 @@ h1 {
     font-size: 1.5rem;
     padding: 20px 90px;
     margin: 30px;
-    background-color: #005bea;
+    background-color: #0072b0;
     color: white;
     text-decoration: none;
     border-radius: 100px;
@@ -210,9 +210,10 @@ h1 {
 .linear-background {
     width: 100%;
     height: 600px; 
-    background-image: linear-gradient(white, #00c6fb, #005bea);
+    background-image: linear-gradient(white, #199ec5, #0072b0);
     display: flex; 
     justify-content: center; 
+
     align-items: center; 
     overflow: hidden; 
 }
@@ -320,7 +321,7 @@ h1 {
 
 .tagline {
     background: #e0f7fa;
-    color: #005bea;
+    color: #0072b0;
     display: inline-block;
     padding: 5px 15px;
     border-radius: 5px;
@@ -330,7 +331,7 @@ h1 {
 
 
 .title {
-    color: #005bea;
+    color: #0072b0;
     font-size: 80px;
     margin: 10px 0;
     line-height: 1.4;
@@ -338,7 +339,7 @@ h1 {
 
 
 .description {
-    color: #3986ff;
+    color: #199ec5;
     margin: 15px 0;
     font-size: 30px;
 }
@@ -360,7 +361,7 @@ h1 {
     opacity: 0;
     transform: translateY(50px);
     transition: all 0.6s ease-out;
-    border-top: solid 5px #005bea;
+    border-top: solid 5px #0072b0;
 }
 
 
@@ -372,7 +373,7 @@ h1 {
 
 
 .card h4 {
-    color: #005bea;
+    color: #0072b0;
     font-size: 18px;
     margin-bottom: 10px;
 }
@@ -483,7 +484,7 @@ body #grid-section {
     align-items: center;
     justify-content: center;
     background-color: #ffffff;
-    border: 2px solid #005bea;
+    border: 2px solid #0072b0;
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -498,14 +499,14 @@ body #grid-section {
 .grid-item i {
     font-size: 24px; 
     margin-bottom: 10px;
-    color: #005bea;
+    color: #0072b0;
 }
 
 
 .grid-item p {
     margin: 0;
     font-size: 14px;
-    color: #005bea;
+    color: #0072b0;
 }
 
 .grid-item:hover {
@@ -665,13 +666,13 @@ body #grid-section {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: 0.3s;
     cursor: pointer;
-    border-top: solid 5px #005bea ;
-    border-bottom: solid 5px #005bea;
+    border-top: solid 5px #0072b0 ;
+    border-bottom: solid 5px #0072b0;
 }
 
 
 .team-card:hover {
-    background: linear-gradient(#00c6fb, #005bea);
+    background: linear-gradient(#00c6fb, #0072b0);
     color: #fff;
 }
 
@@ -680,7 +681,7 @@ body #grid-section {
     width: 8em;
     height: 8em;
     margin: 0 auto 2em;
-    background-color: #005bea;
+    background-color: #0072b0;
     padding: 0.5em;
     border-radius: 50%;
     transition: transform 0.3s ease;

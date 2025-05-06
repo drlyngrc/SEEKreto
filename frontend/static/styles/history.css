@@ -5,7 +5,7 @@
   --background: #ffffff;
   --navbar-width: 256px;
   --navbar-width-min: 80px;
-  --navbar-dark-primary: #005bea;
+  --navbar-dark-primary: #0072b0;
   --navbar-dark-secondary: #2c3e50;
 }
 
@@ -368,7 +368,7 @@ header {
 }
 
 .logout-btn {
-    background-color: #005bea;
+    background-color: #0072b0;
     border-radius: 100px;
     padding: 10px 50px;
 }
@@ -378,7 +378,7 @@ header {
 }
 
 .profile-text {
-    color:  #005bea;
+    color:  #0072b0;
     border-radius: 100px;
     font-size: 40px ;
 
@@ -406,7 +406,7 @@ header {
 .title-container {
     text-align: center;
     margin-bottom: 30px;
-    background-color: #005bea;
+    background-color: #0072b0;
     border-radius: 100px;
     margin-top: 70px;
     justify-content: center;
@@ -770,7 +770,7 @@ h2 {
 }
 
 h2 a {
-  color: #005bea; 
+  color: #0072b0; 
   text-decoration: none; 
 }
 
@@ -780,7 +780,7 @@ body.dark-mode h2 {
 }
 
 body.dark-mode h2 a {
-  color: #005bea; 
+  color: #0072b0; 
 }
 
 
@@ -915,7 +915,7 @@ body.dark-mode h2 a {
 }
 
 .confirm-btn {
-  background-color: #005bea;
+  background-color: #0072b0;
   color: white;
 }
 

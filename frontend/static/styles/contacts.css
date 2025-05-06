@@ -5,7 +5,7 @@
   --background: #ffffff;
   --navbar-width: 256px;
   --navbar-width-min: 80px;
-  --navbar-dark-primary: #005bea;
+  --navbar-dark-primary: #0072b0;
   --navbar-dark-secondary: #2c3e50;
 }
 
@@ -376,7 +376,7 @@ header {
 }
 
 .logout-btn {
-    background-color: #005bea;
+    background-color: #0072b0;
     border-radius: 100px;
     padding: 10px 50px;
 }
@@ -388,7 +388,7 @@ header {
 
 
 .profile-text {
-    color:  #005bea;
+    color:  #0072b0;
     border-radius: 100px;
     font-size: 40px ;
 
@@ -478,7 +478,7 @@ body {
     overflow: hidden;
     transition: 0.6s ease-in;
     text-decoration: none;
-  border: .5px solid #005bea;
+  border: .5px solid #0072b0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
@@ -488,7 +488,7 @@ body {
   z-index: -1;
   top: -15px;
   right: -15px;
-  background: #005bea;
+  background: #0072b0;
   height: 220px;
   width: 25px;
   border-radius: 32px;
@@ -512,14 +512,14 @@ body {
 
 .card p {
   padding: 10px 0;
-  color: #005bea;
+  color: #0072b0;
 }
 
 
 
 .icon {
   font-size: 50px;
-  color: #005bea;
+  color: #0072b0;
   margin-right: 20px;
 }
 
@@ -541,7 +541,7 @@ body {
 .title-container {
     text-align: center;
     margin-bottom: 30px;
-    background-color: #005bea;
+    background-color: #0072b0;
     border-radius: 100px;
     margin-top: 70px;
     justify-content: center;
@@ -612,7 +612,7 @@ body {
   overflow: hidden;
   transition: 0.6s ease-in;
   text-decoration: none;
-  border: 0.5px solid #005bea;
+  border: 0.5px solid #0072b0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
@@ -623,7 +623,7 @@ body {
   z-index: -1;
   top: -15px;
   right: -15px;
-  background: #005bea;
+  background: #0072b0;
   height: 220px;
   width: 25px;
   border-radius: 32px;
@@ -656,13 +656,13 @@ body {
 
 .contact-info p {
   padding: 10px 0 2px 0;
-  color: #005bea;
+  color: #0072b0;
   font-size: 14px;
 }
 
 .contact-info .p-info {
   padding: 1px 0 10px 0;
-  color: #005bea;
+  color: #0072b0;
   font-size: 14px;
 }
 
@@ -671,7 +671,7 @@ body {
 
 .icon {
   font-size: 50px;
-  color: #005bea;
+  color: #0072b0;
   margin-right: 20px;
 }
 
@@ -681,7 +681,7 @@ body {
   justify-content: center;
   align-items: center;
   margin-bottom: 30px;
-  background-color: #005bea;
+  background-color: #0072b0;
   border-radius: 100px;
   margin-top: 70px;
 }
@@ -1097,7 +1097,7 @@ body.dark-mode h2:hover {
 }
 
 .confirm-btn {
-  background-color: #005bea;
+  background-color: #0072b0;
   color: white;
 }
 
