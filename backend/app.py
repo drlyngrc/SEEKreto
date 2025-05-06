@@ -13,6 +13,15 @@ app = Flask(__name__, static_folder='../frontend/static', template_folder='../fr
 app.secret_key = os.urandom(24)
 s = URLSafeTimedSerializer(app.secret_key) 
 
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USERNAME'] = '22-03531@g.batstate-u.edu.ph'  
+app.config['MAIL_PASSWORD'] = 'tovl gikc pzve xbkh' 
+app.config['MAIL_DEFAULT_SENDER'] = '22-03531@g.batstate-u.edu.ph'  
+mail = Mail(app)
+
 db = mysql.connector.connect(
     host="localhost",
     user="root",  
