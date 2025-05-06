@@ -4,26 +4,186 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>History - CodeCrypt</title>
-    <!-- Link to external CSS files -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='/styles/history.css') }}">
+    <script>
+        
+        if (localStorage.getItem("darkmode") === "true") {
+           document.body.classList.add("dark-mode");
+           const darkmodeIcon = document.querySelector("#darkmode-icon");
+           if (darkmodeIcon) {
+               darkmodeIcon.classList.remove("fa-moon");
+               darkmodeIcon.classList.add("fa-sun");
+           }
+       }
+         
+    </script>
+    <script src="{{ url_for('static', filename='js/header.js') }}" defer></script>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='/styles/history.css')  }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-   
+    
 </head>
 <body>
     <header>
         <div class="header-right">
             <a href="/logout" class="logout-btn">Logout</a>
-            <a href="/profile" class="profile-text">
-                <i class="fas fa-user-circle"></i>  <!-- Profile Icon -->
+            <a href="#" class="profile-text" id="profile-icon">
+                <i class="fas fa-user-circle"></i> 
             </a>
+         
+            <div class="profile-dropdown" id="profile-dropdown">
+                <span class="account-details">Account Details</span>
+                
+                <div class="user-email">
+                    <i class="fas fa-address-card"></i>
+                    <div class="email-details">
+                        <div class="email-label">Email</div>
+                        
+                        <div id="user-email-details">{{ email }}</div> 
+                    </div>
+                </div>
+    
+                <div class="user-username">
+                    <i class="fas fa-user"></i>
+                    <div class="username-details">
+                        <div class="username-label">
+                            <a href="#" id="change-username-link" class="change-username">Change Username</a>
+                        </div>
+                        <div id="user-username-details" >{{ username }}</div> 
+                    </div>
+                </div>
+              
+                <div id="changeUsernameModal" class="modal">
+                    <div class="modal-content">
+                        <h2>Change Username</h2>
+                        <form id="changeUsernameForm" method="POST" action="/changeusername">
+                        <label for="currentUsername">Current Username:</label>
+                        <input type="text" id="currentUsername" value="{{ username }}" readonly disabled><br>
+
+                        <label for="newUserame">Enter New Username:</label>
+                        <input type="text" id="newUsername" name="newUsername" required><br>
+
+                        
+                        <div class="flash-messages">
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                            <ul>
+                            {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                            {% endfor %}
+                            </ul>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+
+                    <div class="modal-buttons">
+                        <button type="submit" class="confirm-btn">Confirm</button>
+                        <button type="button" class="cancel-btn" id="cancelBtn1">Close</button>
+                    </div>
+                    </form>
+                    </div>
+                </div>
+
+                <div class="user-name">
+                    <i class="fas fa-pencil-alt"></i>
+                    <div class="name-details">
+                        <div class="name-label">
+                            <a href="#" id="change-name-link" class="change-name">Change Name</a>
+                        </div>
+                        <div id="user-name-details" >{{ name }}</div> 
+                    </div>
+                </div>
+
+               
+                 <div id="changeNameModal" class="modal">
+                    <div class="modal-content">
+                        <h2>Change Name</h2>
+                        <form id="changeNameForm" method="POST" action="/changename">
+                            <label for="currentName">Current name:</label>
+                            <input type="text" id="currentName" value="{{ name }}" readonly disabled><br>
+                            
+
+                        <label for="newName">Enter new name:</label>
+                        <input type="text" id="newName" name="newName" required><br>
+
+                       
+                       <div class="flash-messages-name">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                        <ul>
+                        {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+
+                    <div class="modal-buttons">
+                        <button type="submit" class="confirm-btn">Confirm</button>
+                        <button type="button" class="cancel-btn" id="cancelBtn2">Close</button>
+                    </div>
+                    </form>
+                    </div>
+                </div>
+
+                <div class="user-password">
+                <a href="#" id="change-password-link" class="change-password">
+                    <i class="fas fa-lock"></i> Change Password
+                </a>
+                </div>
+
+                <div id="changePasswordModal" class="modal">
+                    <div class="modal-content">
+                        <h2>Change Password</h2>
+                        <form id="changePasswordForm" method="POST" action="/changepassword">
+                        <label for="currentPassword">Enter current password:</label>
+                        <input type="password" id="currentPassword" name="currentPassword" required><br>
+
+                        <label for="newPassword">Enter new password:</label>
+                        <input type="password" id="newPassword" name="newPassword" required><br>
+
+                        <label for="confirmPassword">Confirm new password:</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required><br>
+
+                        <div class="flash-messages-pw">
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                            <ul>
+                            {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                            {% endfor %}
+                            </ul>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+
+                    <div class="modal-buttons">
+                        <button type="submit" class="confirm-btn">Confirm</button>
+                        <button type="button" class="cancel-btn" id="cancelBtn3">Close</button>
+                    </div>
+                    </form>
+                    </div>
+                </div>
+                <div class = "user-dark-mode">     <a href="#" id="darkmode-toggle">
+                    <i class="fas fa-moon" id="darkmode-icon"></i> <span class="dark-mode-text">Dark Mode</span>
+                </a>
+                </div> 
+                
+                <div class="user-contacts">
+                <a href="{{ url_for('contacts') }}">
+                    <i class="fas fa-envelope"></i> <span class="contacts-text">Contact Us</span>
+                </a>
+                </div>
+                
+                <div class="user-logout">
+                <a href="/logout">
+                    <i class="fas fa-arrow-left"></i><span class="logout-text">Logout</span>
+                </a>
+                </div>
+            </div>
         </div>
-       
     </header>
 
-
-
-
-    <!-- Second Navbar (Replaced with the items from the first code) -->
     <div id="nav-bar">
         <input id="nav-toggle" type="checkbox"/>
         <div id="nav-header">
@@ -48,22 +208,18 @@
             <a href="/vigenere" class="nav-button"><i class="fas fa-font"></i><span>Vigenère Cipher</span></a>
             <hr/>
             <a href="/favorites" class="nav-button"><i class="fas fa-heart"></i><span>Favorites</span></a>
-            <a href="/allhistory" class="nav-button"><i class="fas fa-history"></i><span>History</span></a>
+            <a href="/allhistory" class="nav-button active"><i class="fas fa-history"></i><span>History</span></a>
             <div id="nav-content-highlight"></div>
         </div>
     </div>
 
 
 
-
- <!-- Main Content -->
 <div class="parent-container">
     <div class="title-container">
         <h1>History</h1>
     </div>
 
-
-    <!-- Filter Box -->
     <form method="GET" action="{{ url_for('all_history') }}">
         <div class="filter-boxes">
             <label for="cipher-type">Filter by Type:</label>
@@ -81,7 +237,6 @@
                 <option value="Vigenère Cipher" {% if request.args.get('cipher_type') == 'Vigenère Cipher' %}selected{% endif %}>Vigenère Cipher</option>
             </select>
 
-
             <label for="sort-order">Sort by:</label>
             <select id="sort-order" name="sort_order" onchange="this.form.submit()">
                 <option value="recent" {% if request.args.get('sort_order') == 'recent' %}selected{% endif %}>Recent</option>
@@ -90,30 +245,26 @@
         </div>
     </form>
 
-
     <hr>
-
-
+    {% if history %}
     {% for record in history %}
-        <!-- Date & Time and Conversion Type -->
+      
         <p><strong>Date & Time:</strong> {{ record.timestamp }}</p>
         <p><strong>Conversion Type:</strong> {{ record.conversion_type }} - {{ record.mode_type }}</p><br>
 
-
-        <!-- Input & Output Containers -->
+       
         <div class="history-entry">
             <div class="input-container">
-                <h3>Input</h3>
+                <h3 class="input-word">Input</h3>
                 <p>{{ record.input }}</p>
             </div>
             <div class="output-container">
-                <h3>Output</h3>
+                <h3 class="output-word">Output</h3>
                 <p>{{ record.output }}</p>
             </div>
         </div>
 
-
-        <!-- Additional Details -->
+        
         <div class="additional-details">
             {% if record.shift %}
                 <p><strong>Shift:</strong> {{ record.shift }}</p>
@@ -131,10 +282,101 @@
                 <p><strong>Rail:</strong> {{ record.rail }}</p>
             {% endif %}
         </div>
-        <hr> <!-- Divider between history entries -->
+        <hr>
     {% endfor %}
+    {% else %}
+                <h2 class="empty-history-message">
+                    You don't have any history yet. Convert now using tools in the <a href="{{ url_for('homepage') }}">homepage</a>!
+                </h2>
+                
+            {% endif %}
 </div>
 
+<script>
 
+    const navToggle = document.getElementById("nav-toggle"); 
+    const navToggleBurger = document.getElementById("nav-toggle-burger"); 
+    const parentContainer = document.querySelector(".parent-container"); 
+    const navbarWidthExpanded = 478; 
+    const navbarWidthCollapsed = 328; 
+    const navbarRightExpanded = 40;
+    const navbarWidthCollapsedEmptySmall = 250;
+    const navbarRightCollapsed = 0;
+    
+    
+    
+    
+    function adjustLayoutForNavbar() {
+      if (window.innerWidth > 768) { 
+    
+        navToggle.addEventListener('change', function() {
+          if (navToggle.checked) {
+            parentContainer.style.marginRight = `${navbarRightCollapsed}px`;
+            parentContainer.style.marginLeft = `${navbarWidthCollapsed}px`;
+            parentContainer.style.transition = "margin-left 0.3s ease";
+          } else {
+           
+            parentContainer.style.marginRight = `${navbarRightExpanded}px`;
+            parentContainer.style.marginLeft = `${navbarWidthExpanded}px`;
+            parentContainer.style.transition = "margin-left 0.3s ease"; 
+          }
+        });
+      } else {
+        
+        navToggle.disabled = true;
+        
+        parentContainer.style.marginLeft = '';
+        parentContainer.style.marginRight = '';
+       
+        navToggleBurger.addEventListener('click', function() {
+          window.location.href = "{{ url_for('homepage') }}";
+        });
+      }
+    }
+    
+    
+    function closeNavbarOnSmallScreens() {
+      const navBar = document.getElementById("nav-bar");
+      const navToggle = document.getElementById("nav-toggle");
+      const message = document.querySelector('.empty-history-message');
+    
+      if (window.innerWidth <= 768) {
+        if (message && message.textContent.includes("You don't have any history yet.") && !message.innerHTML.includes('<br>')) {
+          message.innerHTML = message.innerHTML.replace('yet.', 'yet.<br>');
+        }
+    
+        
+        navToggle.checked = true; 
+        navToggle.disabled = true;
+    
+        setTimeout(function () {
+          navBar.classList.add("show"); 
+        }, 300);
+      } else {
+    
+        if (message && message.innerHTML.includes('<br>')) {
+          
+          message.innerHTML = message.innerHTML.replace('yet.<br>', 'yet.');
+        }
+    
+    
+        navToggle.disabled = false; 
+        navBar.classList.add("show");
+      }
+    }
+    
+    window.addEventListener('load', function() {
+      closeNavbarOnSmallScreens();
+      adjustLayoutForNavbar(); 
+    });
+    
+    
+    window.addEventListener('resize', function() {
+      closeNavbarOnSmallScreens(); 
+      adjustLayoutForNavbar(); 
+    });
+    
+    
+</script>
 </body>
 </html>
