@@ -1,3 +1,4 @@
+[![Platform](https://img.shields.io/badge/Site-SEEKreto-blue?style=for-the-badge)](https://github.com/drlyngrc/SEEKreto)
 # SEEKreto: An Interactive Web Platform for Classical Encryption and Data Encoding
 
 <details>
@@ -55,9 +56,10 @@
 
 ## 👥 Contributors
 
-| ![JaronLouise](./Team%203/jaron.jpg) | ![JeffLawrence](./Team%203/jeff.jpg) | ![Darlyne](./Team%203/darlyne.jpg) | ![Carle](./Team%203/carle.jpg) | ![Paul](./Team%203/paul.jpg) |
-| :------------------------------------------------: | :-------------------------------------------------: | :------------------------------------------: | :--------------------------------------------: | :--------------------------------------------: |
-| **[Arquillo, Jaron](https://github.com/JaronLouise)** <br> _JaronLouise_ <br> | **[Balbuena, Jeff](https://github.com/lawrencioqt)** <br> _JeffLawrence_ <br> | **[Lalongisip, Darlyne](https://github.com/drlyngrc)** <br> _Darlyne_ <br> | **[Medina, Carle](https://github.com/controlplusn)** <br> _DevEminent_ <br> | **[Reyes, Paul](https://github.com/par-paulreyes)** <br> _Paul_ <br> |
+| <img src="./Team%203/jaron.jpg" width="200"/> | <img src="./Team%203/jeff.jpg" width="200"/> | <img src="./Team%203/darlyne.jpg" width="200"/> | <img src="./Team%203/carle.jpg" width="200"/> | <img src="./Team%203/paul.jpg" width="200"/> |
+| :--------------------------------------------: | :--------------------------------------------: | :---------------------------------------------: | :---------------------------------------------: | :---------------------------------------------: |
+| **[Arquillo, Jaron](https://github.com/JaronLouise)** <br> _JaronLouise_ <br> | **[Balbuena, Jeff](https://github.com/lawrencioqt)** <br> _JeffLawrence_ <br> | **[Lalongisip, Darlyne](https://github.com/drlyngrc)** <br> _Darlyne_ <br> | **[Medina, Carle](https://github.com/controlplusn)** <br> _DevEminent_ <br> | **[Reyes, Paul](https://github.com/par-paulreyes)** <br> _Paul_ <br>|
+
 
 
 ## 🔗 Links
