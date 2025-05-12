@@ -1170,7 +1170,8 @@ def morse_code():
     email = None  
     name = None  
     username = None 
-    user_id = session.get('user_id')  
+    user_id = session.get('user_id') 
+    is_logged_in = user_id is not None 
 
     if user_id:
         username = session.get('username', 'Guest')
@@ -1223,7 +1224,13 @@ def morse_code():
                 # Only save to database if there was no error
                 insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, input_text, result)
 
-    return render_template('morse.html', result=result, email=email, username=username, name=name, user_id=user_id)
+    return render_template('morse.html', 
+                           result=result, 
+                           email=email, 
+                           username=username, 
+                           name=name, 
+                           user_id=user_id,
+                           is_logged_in=is_logged_in)
 
 def rail_fence_encrypt(text, rails):
     fence = [[] for _ in range(rails)]
