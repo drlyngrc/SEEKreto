@@ -23,7 +23,9 @@ function closeForgotPasswordModal() {
        
         <div class="inner-box-1">
             <div class="login-box">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="login-logo">
+                <a href="{{ url_for('index') }}">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="login-logo">
+                </a>
                 <h2>Login</h2>
                 <h3>Hey, <span class="blue">Hello</span></h3>
                 <p class="p2">Enter the information you entered while registering.</p>

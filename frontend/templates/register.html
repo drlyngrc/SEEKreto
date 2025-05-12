@@ -10,7 +10,9 @@
     <div class="outer-box">
         <div class="inner-box-1">
             <div class="login-box">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="login-logo">
+                <a href="{{ url_for('index') }}">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="login-logo">
+                </a>
                 <h2>Register</h2>
                 <h3>Hey, <span class="blue">Welcome</span></h3>
                 <p class="p2">Create your account to start encrypting and decrypting.</p>
