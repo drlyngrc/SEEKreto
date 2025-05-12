@@ -395,6 +395,24 @@ header {
     background-color: #cc3b3b;
 }
 
+.login-btn, .profile-text {
+    padding: 10px 15px;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.login-btn {
+    background-color: #0072b0;
+    border-radius: 100px;
+    padding: 10px 50px;
+}
+
+
+.login-btn:hover {
+    background-color: #2893c9;
+}
+
 
 .profile-text {
     color:  #0072b0;
