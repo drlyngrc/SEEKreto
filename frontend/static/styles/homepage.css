@@ -692,6 +692,40 @@ body {
 
 }
 
+.profile-login-message {
+  padding: 15px 20px;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 0.95rem;
+  color: #444444;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin: 10px 15px;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.profile-login-message p {
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+}
+
+.profile-login-message .login-link {
+  display: inline-block;
+  font-weight: 600;
+  color: #007bff;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+}
+
+.profile-login-message .login-link:hover,
+.profile-login-message .login-link:focus {
+  color: #0056b3;
+  text-decoration: underline;
+  outline: none;
+}
 
 .profile-dropdown .user-email i,
 .profile-dropdown .user-username i,
@@ -914,6 +948,7 @@ margin-bottom: 2px;
   display: flex; 
   align-items: center; 
 }
+
 
 
 .modal {

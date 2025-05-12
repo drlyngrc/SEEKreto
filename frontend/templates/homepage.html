@@ -34,156 +34,161 @@
             </a>
 
             <div class="profile-dropdown" id="profile-dropdown">
-              
-                <span class="account-details">Account Details</span>
-                
-                <div class="user-email">
-                    <i class="fas fa-address-card"></i>
-                    <div class="email-details">
-                        <div class="email-label">Email</div>
-                        
-                        <div id="user-email-details">{{ email }}</div> 
-                    </div>
-                </div>
-    
-                <div class="user-username">
-                    <i class="fas fa-user"></i>
-                    <div class="username-details">
-                        <div class="username-label">
-                            <a href="#" id="change-username-link" class="change-username">Change Username</a>
+                {% if is_logged_in %}
+                    <span class="account-details">Account Details</span>
+                    
+                    <div class="user-email">
+                        <i class="fas fa-address-card"></i>
+                        <div class="email-details">
+                            <div class="email-label">Email</div>
+                            <div id="user-email-details">{{ email }}</div> 
                         </div>
-                        <div id="user-username-details" >{{ username }}</div> 
                     </div>
-                </div>
-                
-                <div id="changeUsernameModal" class="modal">
-                    <div class="modal-content">
-                        <h2>Change Username</h2>
-                        <form id="changeUsernameForm" method="POST" action="/changeusername">
-                        <label for="currentUsername">Current Username:</label>
-                        <input type="text" id="currentUsername" value="{{ username }}" readonly disabled><br>
-
-                        <label for="newUserame">Enter New Username:</label>
-                        <input type="text" id="newUsername" name="newUsername" required><br>
-
-                        <div class="flash-messages">
-                            {% with messages = get_flashed_messages(with_categories=true) %}
-                                {% if messages %}
-                                    <ul>
-                                        {% for category, message in messages %}
-                                            <li class="{{ category }}">{{ message }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                {% endif %}
-                            {% endwith %}
+            
+                    <div class="user-username">
+                        <i class="fas fa-user"></i>
+                        <div class="username-details">
+                            <div class="username-label">
+                                <a href="#" id="change-username-link" class="change-username">Change Username</a>
+                            </div>
+                            <div id="user-username-details">{{ username }}</div> 
                         </div>
-
-                    <div class="modal-buttons">
-                        <button type="submit" class="confirm-btn">Confirm</button>
-                        <button type="button" class="cancel-btn" id="cancelBtn1">Close</button>
                     </div>
-                    </form>
-                    </div>
-                </div>
-
-
-                <div class="user-name">
-                    <i class="fas fa-pencil-alt"></i>
-                    <div class="name-details">
-                        <div class="name-label">
-                            <a href="#" id="change-name-link" class="change-name">Change Name</a>
+                    
+                    <div id="changeUsernameModal" class="modal">
+                        <div class="modal-content">
+                            <h2>Change Username</h2>
+                            <form id="changeUsernameForm" method="POST" action="/changeusername">
+                                <label for="currentUsername">Current Username:</label>
+                                <input type="text" id="currentUsername" value="{{ username }}" readonly disabled><br>
+            
+                                <label for="newUserame">Enter New Username:</label>
+                                <input type="text" id="newUsername" name="newUsername" required><br>
+            
+                                <div class="flash-messages">
+                                    {% with messages = get_flashed_messages(with_categories=true) %}
+                                        {% if messages %}
+                                            <ul>
+                                                {% for category, message in messages %}
+                                                    <li class="{{ category }}">{{ message }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+            
+                                <div class="modal-buttons">
+                                    <button type="submit" class="confirm-btn">Confirm</button>
+                                    <button type="button" class="cancel-btn" id="cancelBtn1">Close</button>
+                                </div>
+                            </form>
                         </div>
-                        <div id="user-name-details" >{{ name }}</div> 
                     </div>
-                </div>
-
-                 <div id="changeNameModal" class="modal">
-                    <div class="modal-content">
-                        <h2>Change Name</h2>
-                        <form id="changeNameForm" method="POST" action="/changename">
-                            <label for="currentName">Current name:</label>
-                            <input type="text" id="currentName" value="{{ name }}" readonly disabled><br>
-                            
-
-                        <label for="newName">Enter new name:</label>
-                        <input type="text" id="newName" name="newName" required><br>
-
-                       <div class="flash-messages-name">
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                <ul>
-                                    {% for category, message in messages %}
-                                        <li class="{{ category }}">{{ message }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-                        {% endwith %}
-                    </div>
-
-                    <div class="modal-buttons">
-                        <button type="submit" class="confirm-btn">Confirm</button>
-                        <button type="button" class="cancel-btn" id="cancelBtn2">Close</button>
-                    </div>
-                    </form>
-                    </div>
-                </div>
-
-
-                <div class="user-password">
-                <a href="#" id="change-password-link" class="change-password">
-                    <i class="fas fa-lock"></i> Change Password
-                </a>
-                </div>
-
-                <div id="changePasswordModal" class="modal">
-                    <div class="modal-content">
-                        <h2>Change Password</h2>
-                        <form id="changePasswordForm" method="POST" action="/changepassword">
-                        <label for="currentPassword">Enter current password:</label>
-                        <input type="password" id="currentPassword" name="currentPassword" required><br>
-
-                        <label for="newPassword">Enter new password:</label>
-                        <input type="password" id="newPassword" name="newPassword" required><br>
-
-                        <label for="confirmPassword">Confirm new password:</label>
-                        <input type="password" id="confirmPassword" name="confirmPassword" required><br>
-
-                        <div class="flash-messages-pw">
-                            {% with messages = get_flashed_messages(with_categories=true) %}
-                                {% if messages %}
-                                    <ul>
-                                        {% for category, message in messages %}
-                                            <li class="{{ category }}">{{ message }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                {% endif %}
-                            {% endwith %}
+            
+                    <div class="user-name">
+                        <i class="fas fa-pencil-alt"></i>
+                        <div class="name-details">
+                            <div class="name-label">
+                                <a href="#" id="change-name-link" class="change-name">Change Name</a>
+                            </div>
+                            <div id="user-name-details">{{ name }}</div> 
                         </div>
-
-                    <div class="modal-buttons">
-                        <button type="submit" class="confirm-btn">Confirm</button>
-                        <button type="button" class="cancel-btn" id="cancelBtn3">Close</button>
                     </div>
-                    </form>
+            
+                    <div id="changeNameModal" class="modal">
+                        <div class="modal-content">
+                            <h2>Change Name</h2>
+                            <form id="changeNameForm" method="POST" action="/changename">
+                                <label for="currentName">Current name:</label>
+                                <input type="text" id="currentName" value="{{ name }}" readonly disabled><br>
+            
+                                <label for="newName">Enter new name:</label>
+                                <input type="text" id="newName" name="newName" required><br>
+            
+                                <div class="flash-messages-name">
+                                    {% with messages = get_flashed_messages(with_categories=true) %}
+                                        {% if messages %}
+                                            <ul>
+                                                {% for category, message in messages %}
+                                                    <li class="{{ category }}">{{ message }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+            
+                                <div class="modal-buttons">
+                                    <button type="submit" class="confirm-btn">Confirm</button>
+                                    <button type="button" class="cancel-btn" id="cancelBtn2">Close</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </div>
-                <div class = "user-dark-mode">     <a href="#" id="darkmode-toggle">
-                    <i class="fas fa-moon" id="darkmode-icon"></i> <span class="dark-mode-text">Dark Mode</span>
-                </a>
-                </div> 
-                
-                <div class="user-contacts">
-                <a href="{{ url_for('contacts') }}">
-                    <i class="fas fa-envelope"></i> <span class="contacts-text">Contact Us</span>
-                </a>
-                </div>
-                
-                <div class="user-logout">
-                <a href="/logout">
-                    <i class="fas fa-arrow-left"></i><span class="logout-text">Logout</span>
-                </a>
-                </div>
+            
+                    <div class="user-password">
+                        <a href="#" id="change-password-link" class="change-password">
+                            <i class="fas fa-lock"></i> Change Password
+                        </a>
+                    </div>
+            
+                    <div id="changePasswordModal" class="modal">
+                        <div class="modal-content">
+                            <h2>Change Password</h2>
+                            <form id="changePasswordForm" method="POST" action="/changepassword">
+                                <label for="currentPassword">Enter current password:</label>
+                                <input type="password" id="currentPassword" name="currentPassword" required><br>
+            
+                                <label for="newPassword">Enter new password:</label>
+                                <input type="password" id="newPassword" name="newPassword" required><br>
+            
+                                <label for="confirmPassword">Confirm new password:</label>
+                                <input type="password" id="confirmPassword" name="confirmPassword" required><br>
+            
+                                <div class="flash-messages-pw">
+                                    {% with messages = get_flashed_messages(with_categories=true) %}
+                                        {% if messages %}
+                                            <ul>
+                                                {% for category, message in messages %}
+                                                    <li class="{{ category }}">{{ message }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+            
+                                <div class="modal-buttons">
+                                    <button type="submit" class="confirm-btn">Confirm</button>
+                                    <button type="button" class="cancel-btn" id="cancelBtn3">Close</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+            
+                    <div class="user-dark-mode">
+                        <a href="#" id="darkmode-toggle">
+                            <i class="fas fa-moon" id="darkmode-icon"></i> <span class="dark-mode-text">Dark Mode</span>
+                        </a>
+                    </div> 
+                    
+                    <div class="user-contacts">
+                        <a href="{{ url_for('contacts') }}">
+                            <i class="fas fa-envelope"></i> <span class="contacts-text">Contact Us</span>
+                        </a>
+                    </div>
+                    
+                    <div class="user-logout">
+                        <a href="/logout">
+                            <i class="fas fa-arrow-left"></i><span class="logout-text">Logout</span>
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="profile-login-message">
+                        <p>Please log in to access profile features.</p>
+                        <a href="{{ url_for('login') }}" class="login-link">Go to Login</a>
+                    </div>
+                {% endif %}
             </div>
+            
         </div>
     </header>
 
