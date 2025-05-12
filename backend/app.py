@@ -198,41 +198,20 @@ def reset_password(token):
 # Homepage
 @app.route('/homepage')
 def homepage():
-    if 'user_id' not in session:
-        return redirect(url_for('login')) 
+    user_id = session.get('user_id')
+    favorite_ciphers = []
 
-    user_id = session['user_id']
-    username = session['username']
-    
-    cursor.execute(
-        "SELECT email FROM users WHERE user_id = %s", (user_id,)
-    )
-    result = cursor.fetchone()
+    if user_id:
+        # Fetch favorite ciphers for the user
+        cursor.execute("""
+            SELECT c.crypt_id
+            FROM favorites f
+            JOIN ciphers c ON f.crypt_id = c.crypt_id
+            WHERE f.user_id = %s
+        """, (user_id,))
+        favorite_ciphers = [row[0] for row in cursor.fetchall()]
 
-    if result:  
-        email = result[0]  
-    else:
-        email = 'Error fetching.'  
-
-    cursor.execute(
-        "SELECT name FROM users WHERE user_id = %s", (user_id,)
-    )
-    result_name = cursor.fetchone()
-
-    if result_name:  
-        name = result_name[0]  
-    else:
-        name = 'Error fetching.' 
-    
-    cursor.execute(
-        "SELECT crypt_id FROM favorites WHERE user_id = %s", (user_id,)
-    )
-    favorites = cursor.fetchall()
-
-    favorite_ciphers = {favorite[0] for favorite in favorites}
-    
-    return render_template('homepage.html', username=username, email=email, name=name, 
-                          user_id=user_id, favorite_ciphers=favorite_ciphers)
+    return render_template('homepage.html', favorite_ciphers=favorite_ciphers)
 
 # Change password
 @app.route("/changepassword", methods=["POST"])
@@ -388,7 +367,6 @@ def favorites():
 
     
     if favorites:
-        
         return render_template('favorites.html', favorites=favorites, email=email, username=username, name=name)
     else:
        
@@ -421,27 +399,39 @@ def toggle_favorite():
     
     if is_favorited:
         try:
-            cursor.execute("SELECT MAX(fav_id) FROM favorites")
-            max_fav_id = cursor.fetchone()[0]
-            
-            if max_fav_id:
-                fav_num = int(max_fav_id[3:]) + 1
-                new_fav_id = f"FAV{fav_num:04d}"
-            else:
-                new_fav_id = "FAV0001"
-                
+            # Check favorites duplicate
             cursor.execute("""
-                INSERT INTO favorites 
-                (fav_id, user_id, crypt_id, description, icon_text, href) 
-                VALUES (%s, %s, %s, %s, %s, %s)
-            """, (new_fav_id, user_id, crypt_id, description, icon_text, tool_url))
-            db.commit()
-            return jsonify({"success": True, "message": "Added to favorites"})
+                SELECT 1 FROM favorites WHERE user_id = %s AND crypt_id = %s
+            """, (user_id, crypt_id))
+            exists = cursor.fetchone()
+
+            if not exists:
+                # New fav id
+                cursor.execute("SELECT MAX(fav_id) FROM favorites")
+                max_fav_id = cursor.fetchone()[0]
+
+                if max_fav_id:
+                    fav_num = int(max_fav_id[3:]) + 1
+                    new_fav_id = f"FAV{fav_num:04d}"
+                else:
+                    new_fav_id = "FAV0001"
+
+                # Insert new favorite
+                cursor.execute("""
+                    INSERT INTO favorites 
+                    (fav_id, user_id, crypt_id, description, icon_text, href) 
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, (new_fav_id, user_id, crypt_id, description, icon_text, tool_url))
+                db.commit()
+                return jsonify({"success": True, "message": "Added to favorites"})
+            else:
+                return jsonify({"success": False, "message": "Already in favorites"})
         except mysql.connector.Error as e:
             db.rollback()
             return jsonify({"success": False, "message": f"Database error: {str(e)}"}), 500
     else:
         try:
+            # Delete fav if it exists
             cursor.execute("""
                 DELETE FROM favorites 
                 WHERE user_id = %s AND crypt_id = %s

@@ -23,7 +23,9 @@
 <body>
     <header>
         <div class="header-right">
-            <a href="/logout" class="logout-btn">Logout</a>
+            {% if is_logged_in %}
+                <a href="/logout" class="logout-btn">Logout</a>
+            {% endif %}
             <a href="#" class="profile-text" id="profile-icon">
                 <i class="fas fa-user-circle"></i> 
             </a>
@@ -105,13 +107,13 @@
 
                        <div class="flash-messages-name">
                         {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                        <ul>
-                        {% for category, message in messages %}
-                        <li class="{{ category }}">{{ message }}</li>
-                        {% endfor %}
-                        </ul>
-                        {% endif %}
+                            {% if messages %}
+                                <ul>
+                                    {% for category, message in messages %}
+                                        <li class="{{ category }}">{{ message }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
                         {% endwith %}
                     </div>
 
@@ -228,7 +230,9 @@
                 <button onclick="FavButton1(event, 'Affine Cipher', 'A substitution cipher using a linear mathematical transformation.', 'fas fa-align-left icon', '/affine')" 
                         id="favbtn1" 
                         class="favbtn {% if 'CC001' in favorite_ciphers %}fav-active{% endif %}">
-                    <i class="fas fa-heart"></i>
+                    {% if session['user_id'] %}
+                        <i class="fas fa-heart"></i>
+                    {% endif %}
                 </button>
                 <p>A substitution cipher using a linear mathematical transformation.</p>
             </div>
@@ -241,9 +245,12 @@
             <div class="text">
                 <h4>Atbash Cipher</h4>
                 <button onclick = "FavButton2(event, 'Atbash Cipher', 'An ancient cipher that substitutes each letter with its opposite.', 'fas fa-arrow-left icon', '/atbash')"
-                id = "favbtn2"
-                class = "favbtn {% if 'CC002' in favorite_ciphers %}fav-active{% endif %}">
-                <i class="fas fa-heart"></i></button>
+                    id = "favbtn2"
+                    class = "favbtn {% if 'CC002' in favorite_ciphers %}fav-active{% endif %}">
+                        {% if session['user_id'] %}
+                            <i class="fas fa-heart"></i>
+                        {% endif %}
+                </button>
                 <p>An ancient cipher that substitutes each letter with its opposite.</p>
             </div>
         </a>
@@ -254,8 +261,11 @@
             <div class="text">
                 <h4>Base64 Encoding</h4>
                 <button onclick = "FavButton3(event, 'Base64 Encoding', 'Encode binary data into ASCII string format using Base64.', 'fas fa-code icon', '/base64')"
-                id = "favbtn3" class = "favbtn {% if 'CC003' in favorite_ciphers %}fav-active{% endif %}">
-                <i class="fas fa-heart"></i></button>
+                    id = "favbtn3" class = "favbtn {% if 'CC003' in favorite_ciphers %}fav-active{% endif %}">
+                        {% if session['user_id'] %}
+                            <i class="fas fa-heart"></i>
+                        {% endif %}
+                </button>
                 <p>Encode binary data into ASCII string format using Base64.</p>
             </div>
         </a>
@@ -266,7 +276,11 @@
             <div class="text">
                 <h4>Binary Encoding</h4>
                 <button onclick = "FavButton4(event, 'Binary Encoding', 'Convert text into binary code representation.', 'fas fa-circle icon', '/binary')"
-                id = "favbtn4" class = "favbtn {% if 'CC004' in favorite_ciphers %}fav-active{% endif %}"><i class="fas fa-heart"></i></button>
+                    id = "favbtn4" class = "favbtn {% if 'CC004' in favorite_ciphers %}fav-active{% endif %}">
+                        {% if session['user_id'] %}
+                            <i class="fas fa-heart"></i>
+                        {% endif %}
+                </button>
                 <p>Convert text into binary code representation.</p>
             </div>
         </a>
@@ -277,7 +291,11 @@
             <div class="text">
                 <h4>Caesar Cipher</h4>
                 <button onclick = "FavButton5(event, 'Caesar Cipher', 'Encrypt text by shifting characters a certain number of positions.', 'fas fa-asterisk icon', '/caesar')"
-                id = "favbtn5" class = "favbtn {% if 'CC005' in favorite_ciphers %}fav-active{% endif %}"><i class="fas fa-heart"></i></button>
+                    id = "favbtn5" class = "favbtn {% if 'CC005' in favorite_ciphers %}fav-active{% endif %}">
+                        {% if session['user_id'] %}
+                            <i class="fas fa-heart"></i>
+                        {% endif %}
+                </button>
                 <p>Encrypt text by shifting characters a certain number of positions.</p>
             </div>
         </a>
@@ -288,7 +306,11 @@
             <div class="text">
                 <h4>Hexadecimal Encoding</h4>
                 <button onclick = "FavButton6(event, 'Hexadecimal Encoding', 'Encode text into hexadecimal format.', 'fas fa-hashtag icon', '/hexadecimal')"
-                id = "favbtn6" class = "favbtn {% if 'CC006' in favorite_ciphers %}fav-active{% endif %}"><i class="fas fa-heart"></i></button>
+                    id = "favbtn6" class = "favbtn {% if 'CC006' in favorite_ciphers %}fav-active{% endif %}">
+                        {% if session['user_id'] %}
+                            <i class="fas fa-heart"></i>
+                        {% endif %}
+                </button>
                 <p>Encode text into hexadecimal format.</p>
             </div>
         </a>
@@ -299,7 +321,11 @@
             <div class="text">
                 <h4>Morse Code</h4>
                 <button onclick = "FavButton7(event, 'Morse Code', 'Convert text into Morse code signals.', 'fas fa-wave-square icon','/morse')"
-                id = "favbtn7" class = "favbtn {% if 'CC007' in favorite_ciphers %}fav-active{% endif %}"><i class="fas fa-heart"></i></button>
+                    id = "favbtn7" class = "favbtn {% if 'CC007' in favorite_ciphers %}fav-active{% endif %}">
+                        {% if session['user_id'] %}
+                            <i class="fas fa-heart"></i>
+                        {% endif %}
+                </button>
                 <p>Convert text into Morse code signals.</p>
             </div>
         </a>
@@ -310,7 +336,11 @@
             <div class="text">
                 <h4>Rail Fence Cipher</h4>
                 <button onclick = "FavButton8(event, 'Rail Fence Cipher', 'A transposition cipher that arranges characters in a zig-zag pattern.', 'fas fa-random icon', '/railfence')"
-                id = "favbtn8" class = "favbtn {% if 'CC008' in favorite_ciphers %}fav-active{% endif %}"><i class="fas fa-heart"></i></button>
+                    id = "favbtn8" class = "favbtn {% if 'CC008' in favorite_ciphers %}fav-active{% endif %}">
+                        {% if session['user_id'] %}
+                            <i class="fas fa-heart"></i>
+                        {% endif %}
+                </button>
                 <p>A transposition cipher that arranges characters in a zig-zag pattern.</p>
             </div>
         </a>
@@ -321,7 +351,11 @@
             <div class="text">
                 <h4>ROT13 Cipher</h4>
                 <button onclick = "FavButton9(event, 'ROT13 Cipher', 'A simple cipher that shifts letters by 13 places in the alphabet.', 'fas fa-sync-alt icon', '/rot13')"
-                id = "favbtn9" class = "favbtn {% if 'CC009' in favorite_ciphers %}fav-active{% endif %}"><i class="fas fa-heart"></i></button>
+                    id = "favbtn9" class = "favbtn {% if 'CC009' in favorite_ciphers %}fav-active{% endif %}">
+                        {% if session['user_id'] %}
+                            <i class="fas fa-heart"></i>
+                        {% endif %}
+                </button>
                 <p>A simple cipher that shifts letters by 13 places in the alphabet.</p>
             </div>
         </a>
@@ -332,7 +366,11 @@
             <div class="text">
                 <h4>Vigenère Cipher</h4>
                 <button onclick = "FavButton10(event, 'Vigenère Cipher', 'A method of encrypting alphabetic text by using a simple form of polyalphabetic substitution.', 'fas fa-font icon', '/vigenere')"
-                id = "favbtn10" class = "favbtn {% if 'CC010' in favorite_ciphers %}fav-active{% endif %}"><i class="fas fa-heart"></i></button>
+                    id = "favbtn10" class = "favbtn {% if 'CC010' in favorite_ciphers %}fav-active{% endif %}">
+                        {% if session['user_id'] %}
+                            <i class="fas fa-heart"></i>
+                        {% endif %}
+                </button>
                 <p>A method of encrypting alphabetic text by using a simple form of polyalphabetic substitution.</p>
             </div>
         </a>
@@ -353,10 +391,8 @@ const navbarRightCollapsed = 0;
     var favbtn = document.getElementById('favbtn');
     
     function FavButton1(event, toolName, description, iconText, href) {
-        
         event.preventDefault();
     
-        
         var favbtn = document.getElementById("favbtn1");
         favbtn.classList.toggle("fav-active");
     
@@ -367,7 +403,6 @@ const navbarRightCollapsed = 0;
             favbtn.style.color = ""; 
         }
     
-        
         var isFavorited = favbtn.classList.contains("fav-active");
         fetch('/toggle-favorite', {
             method: 'POST',
