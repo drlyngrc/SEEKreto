@@ -1022,6 +1022,7 @@ def hexadecimal_code():
     name = None  
     username = None 
     user_id = session.get('user_id')  
+    is_logged_in = user_id is not None
 
     if user_id:
         username = session.get('username', 'Guest')
@@ -1072,7 +1073,13 @@ def hexadecimal_code():
                 
         insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, input_text, result)
 
-    return render_template('hexadecimal.html', result=result, email=email, username=username, name=name, user_id=user_id)
+    return render_template('hexadecimal.html', 
+                           result=result, 
+                           email=email, 
+                           username=username, 
+                           name=name, 
+                           user_id=user_id,
+                           is_logged_in=is_logged_in)
 
 def morse_encode(text):
     morse_code_dict = {
