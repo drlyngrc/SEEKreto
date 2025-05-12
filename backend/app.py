@@ -952,6 +952,7 @@ def base64_encode_decode():
     name = None  
     username = None 
     user_id = session.get('user_id')  
+    is_logged_in = user_id is not None
 
     if user_id:
         username = session.get('username', 'Guest')
@@ -999,7 +1000,13 @@ def base64_encode_decode():
         crypt_id = 'Base64 Encoding'  
         insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, input_text, result)
 
-    return render_template('base64.html', result=result, email=email, username=username, name=name, user_id=user_id)
+    return render_template('base64.html', 
+                           result=result, 
+                           email=email, 
+                           username=username, 
+                           name=name, 
+                           user_id=user_id,
+                           is_logged_in=is_logged_in)
 
 @app.route('/hexadecimal', methods=['GET', 'POST'])
 def hexadecimal_code():
