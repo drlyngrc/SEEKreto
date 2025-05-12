@@ -181,10 +181,14 @@ Follow the steps below to run SEEKreto on your local machine.
 | :--------------------------------------------: | :--------------------------------------------: | :---------------------------------------------: | :---------------------------------------------: | :---------------------------------------------: |
 | **[Arquillo, Jaron](https://github.com/JaronLouise)** <br> _JaronLouise_ <br> | **[Balbuena, Jeff](https://github.com/lawrencioqt)** <br> _JeffLawrence_ <br> | **[Lalongisip, Darlyne](https://github.com/drlyngrc)** <br> _Darlyne_ <br> | **[Medina, Carle](https://github.com/controlplusn)** <br> _DevEminent_ <br> | **[Reyes, Paul](https://github.com/par-paulreyes)** <br> _Paul_ <br>|
 
+---
+
 ## 🩷 Acknowledgement
   We extend our sincere gratitude to Ms. Fatima Marie P. Agdon, MSCS, for her unwavering guidance and support throughout our Software Engineering project. Her encouragement and direction kept us focused and aligned from start to finish.
   We also thank our fellow team members for their collaboration, dedication, and hard work across every phase of the project—from ideation to deployment.
   Lastly, we appreciate our peers for their valuable feedback and encouragement, which helped us improve SEEKreto every step of the way. 🩷
+
+#### Instructor:  **[Ms. Fatima Marie P. Agdon, MSCS ](https://github.com/marieemoiselle)** - CS 322 | Software Engineering
 
 ## 🔗 Links
 - 📄 [**Final Report**](https://drive.google.com/file/d/1nX-O0bOsScbo_xkGm7Z1vWBlMnOtrBep/view?usp=sharing)
