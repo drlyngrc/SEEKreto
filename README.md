@@ -69,10 +69,9 @@ SEEKreto
 
 ## 💻 Technologies Used
 - **Front-end:** HTML, CSS, JavaScript  
-- **Back-end:** Node.js, Express.js  
+- **Back-end:** Python, Flask, werkzeug.security (for password hashing)
 - **Database:** MySQL  
 - **Version Control:** Git & GitHub  
-- **Tools & Libraries:** 
 - **Deployment:** GitHub Pages
 
 ---
