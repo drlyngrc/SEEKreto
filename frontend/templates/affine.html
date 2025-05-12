@@ -90,7 +90,12 @@
 <body>
     <header>
         <div class="header-right">
-            <a href="/logout" class="logout-btn">Logout</a>
+            {% if is_logged_in %}
+                <a href="/logout" class="logout-btn">Logout</a>
+            {% else %}
+                <a href="/login" class="login-btn">Login</a>
+            {% endif %}
+            
             <a href="#" class="profile-text" id="profile-icon">
                 <i class="fas fa-user-circle"></i> 
             </a>

@@ -25,7 +25,7 @@ mail = Mail(app)
 db = mysql.connector.connect(
     host="localhost",
     user="root",  
-    password="",  
+    password="carlemedina",  
     database="seekreto" 
 )
 cursor = db.cursor()
@@ -199,6 +199,7 @@ def reset_password(token):
 @app.route('/homepage')
 def homepage():
     user_id = session.get('user_id')
+    is_logged_in = user_id is not None
     favorite_ciphers = []
 
     if user_id:
@@ -211,7 +212,9 @@ def homepage():
         """, (user_id,))
         favorite_ciphers = [row[0] for row in cursor.fetchall()]
 
-    return render_template('homepage.html', favorite_ciphers=favorite_ciphers)
+    return render_template('homepage.html', 
+                           favorite_ciphers=favorite_ciphers,
+                           is_logged_in=is_logged_in)
 
 # Change password
 @app.route("/changepassword", methods=["POST"])
@@ -666,6 +669,7 @@ def atbash():
     name = None  
     username = None 
     user_id = session.get('user_id')  
+    is_logged_in = user_id is not None
 
     if user_id:
         username = session.get('username', 'Guest')
@@ -689,11 +693,9 @@ def atbash():
         user_id = session.get('user_id')
         if not user_id:
             return redirect(url_for('login'))
-        
        
         mode = request.form.get('mode')
         
-       
         if not mode:
             flash("Please select an option before entering text.")
             return redirect(url_for('atbash'))  
@@ -712,7 +714,13 @@ def atbash():
      
         insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, text, result)
 
-    return render_template('atbash.html', result=result, email=email, username=username, name=name, user_id=user_id)
+    return render_template('atbash.html', 
+                           result=result, 
+                           email=email, 
+                           username=username, 
+                           name=name, 
+                           user_id=user_id,
+                           is_logged_in=is_logged_in)
 
 def caesar_encrypt(text, shift):
     encrypted = ""
@@ -733,7 +741,8 @@ def caesar_cipher():
     email = None  
     name = None  
     username = None 
-    user_id = session.get('user_id')  
+    user_id = session.get('user_id') 
+    is_logged_in = user_id is not None 
 
     if user_id:
         username = session.get('username', 'Guest')
@@ -777,7 +786,13 @@ def caesar_cipher():
         crypt_id = 'Caesar Cipher'
         insert_history(user_id, crypt_id, mode_id, None, None, shift, None, None, input_text, result)
 
-    return render_template('caesar.html', result=result, email=email, username=username, name=name, user_id=user_id)
+    return render_template('caesar.html', 
+                           result=result,  
+                           email=email, 
+                           username=username, 
+                           name=name, 
+                           user_id=user_id,
+                           is_logged_in=is_logged_in)
 
 @app.route('/binary', methods=['GET', 'POST'])
 def binary_code():
@@ -868,6 +883,7 @@ def affine_cipher():
     name = None  
     username = None 
     user_id = session.get('user_id')  
+    is_logged_in = user_id is not None
 
     if user_id:
         username = session.get('username', 'Guest')
@@ -921,7 +937,13 @@ def affine_cipher():
             except ValueError as e:
                 result = str(e)  
 
-    return render_template('affine.html', result=result, email=email, username=username, name=name, user_id=user_id)
+    return render_template('affine.html', 
+                           result=result, 
+                           email=email, 
+                           username=username, 
+                           name=name, 
+                           user_id=user_id,
+                           is_logged_in=is_logged_in)
 
 @app.route('/base64', methods=['GET', 'POST'])
 def base64_encode_decode():
