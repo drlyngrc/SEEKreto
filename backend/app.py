@@ -1365,6 +1365,7 @@ def rot13():
     name = None  
     username = None 
     user_id = session.get('user_id')  
+    is_logged_in = user_id is not None 
 
     if user_id:
         username = session.get('username', 'Guest')
@@ -1406,7 +1407,13 @@ def rot13():
         crypt_id = 'ROT13 Cipher'
         insert_history(user_id, crypt_id, mode_id, None, None, None, None, None, text, result)
 
-    return render_template('rot13.html', result=result, email=email, username=username, name=name, user_id=user_id)  
+    return render_template('rot13.html', 
+                           result=result, 
+                           email=email, 
+                           username=username, 
+                           name=name, 
+                           user_id=user_id,
+                           is_logged_in=is_logged_in)  
 
 
 def insert_history(user_id, crypt_id, mode_id, a_value=None, b_value=None, shift=None, key=None, rail=None, input_text="", output_text=""):
