@@ -1448,7 +1448,8 @@ def vigenere():
     email = None  
     name = None  
     username = None 
-    user_id = session.get('user_id')  
+    user_id = session.get('user_id') 
+    is_logged_in = user_id is not None  
 
     if user_id:
         username = session.get('username', 'Guest')
@@ -1497,7 +1498,13 @@ def vigenere():
     
         crypt_id = 'Vigenère Cipher'
         insert_history(user_id, crypt_id, mode_id, None, None, None, keyword, None, text, result)
-    return render_template('vigenere.html', result=result, email=email, username=username, name=name, user_id=user_id)
+    return render_template('vigenere.html', 
+                           result=result, 
+                           email=email, 
+                           username=username, 
+                           name=name, 
+                           user_id=user_id,
+                           is_logged_in=is_logged_in)
  
 
 
