@@ -4,21 +4,41 @@
 <details>
   <summary><strong>📖 Table of Contents</strong></summary>
 
-1. [Introduction](#-introduction)
+1. [Project Overview](#-project-overview)
 2. [Sustainable Development Goals (SDGs)](#-sustainable-development-goals-sdgs)
 3. [Key Features](#-key-features)
 4. [Project Structure](#-project-structure)
 5. [Technologies Used](#-technologies-used)
 6. [Getting Started](#-getting-started)
-7. [Contributors](#-contributors)
-8. [Acknowledgement](#-acknowledgement)
-9. [Links](#-links)
+7. [Supported Methods](#-supported-methods)
+8. [Usage Guide](#-usage-guide)
+9. [Contributors](#-contributors)
+10. [Acknowledgement](#-acknowledgement)
+11. [Links](#-links)
 
 </details>
 
-## 📌 Introduction
-**SEEKreto** is an interactive cryptography platform that allows users to encrypt and decrypt messages using classical ciphers like Caesar, Vigenère, and more. Aimed at promoting digital literacy and security awareness, SEEKreto also serves as an educational tool, making encryption fun and accessible. Users can create account, save favorites, view encryption history, and switch between light and dark modes—all within a responsive, intuitive UI.
+## 📘 Project Overview
 
+**SEEKreto** is a web-based application that allows users to securely **encrypt and decrypt data** using classical or traditional cipher techniques such as Caesar Cipher, Vigenère Cipher, and more. It also includes **data representation tools** like Base64 and hexadecimal encoding, offering users practical methods for transforming and protecting information.
+
+Designed with both functionality and education in mind, SEEKreto serves as a **learning platform** for students and cryptography enthusiasts. It provides **hands-on experience** with basic encryption methods, helping users understand fundamental data security principles through interactive exploration.
+
+## 🎯 Who Are the Intended Users?
+
+| **Cryptography Enthusiasts**               | **Students**                     | **General Users**            |
+|--------------------------------------------|----------------------------------|-------------------------------|
+| Individuals interested in exploring and experimenting with encryption. | Learners from IT related fields who want hands-on experience with classical encryption. | People who need a simple and secure way to encrypt and decrypt sensitive data. |
+
+### 🧩 What Problem Does It Solve?
+
+SEEKreto addresses the **lack of accessible and beginner-friendly platforms** for learning and applying classical encryption techniques. It offers a **user-friendly interface** to:
+
+- Explore and experiment with various ciphers  
+- Securely encode sensitive data  
+- Bridge the gap between **cryptographic theory and real-world application**
+
+---
 
 ## 🌍 Sustainable Development Goals (SDGs)
 > **📘 SDG 4: Quality Education**  
@@ -118,6 +138,43 @@ Follow the steps below to run SEEKreto on your local machine.
 
 ---
 
+## 🔐 Supported Methods
+| **Type**               | **Methods Available**                                  | 
+|------------------------|--------------------------------------------------------|
+| Encryption             | Affine, Atbash, Caesar, Rail Fence, ROT13, Vigenère    |
+| Encoding               | Base64, Binary, Hexadecimal, Morse Code                |
+
+
+## 🚀 Usage Guide
+### 1. 🔐 Access, Registration, and Login
+- You can **access SEEKreto** without logging in to use the cipher and encoding tools.
+- To unlock full features like **Favorites** and **History**, register by providing your **name**, **email**, **username**, and **password**.
+- Log in to enable those features and have a personalized experience.
+
+### 2. 🧭 Select a Cipher Tool
+- Navigate using the **sidebar** or the **cards on the homepage** to select a cipher or encoding method.
+- Choose between **Text to Cipher** or **Cipher to Text**.
+- Enter the text you want to **encrypt** or **decrypt**, along with any required keys (e.g., Caesar shift or Vigenère keyword).
+- Click the **Convert** button to perform the operation.
+
+### 3. 📤 Results
+- The result of your encryption or decryption will be shown in a dedicated **output area** next to the input field.
+
+### 4. ⭐ Favorites (Login Required)
+- Logged-in users can mark frequently used ciphers as **favorites**.
+- These are saved and displayed in a **Favorites** section for quick future access.
+
+### 5. 🕓 History (Login Required)
+- Logged-in users have access to a **History** panel showing previous encryptions and decryptions.
+- You can **filter** by cipher type or **sort** by date (newest or oldest) to revisit past actions.
+
+### 6. 🔓 Logout
+- When you're finished, click the **Logout** button to securely exit your session.
+
+
+#### ✨ Whether you're a guest or a registered user, SEEKreto makes classical encryption and data encoding intuitive and fun!
+
+---
 ## 👥 Contributors
 
 | <img src="./Team%203/jaron.jpg" width="200"/> | <img src="./Team%203/jeff.jpg" width="200"/> | <img src="./Team%203/darlyne.jpg" width="200"/> | <img src="./Team%203/carle.jpg" width="200"/> | <img src="./Team%203/paul.jpg" width="200"/> |
