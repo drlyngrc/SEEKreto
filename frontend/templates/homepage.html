@@ -25,11 +25,14 @@
         <div class="header-right">
             {% if is_logged_in %}
                 <a href="/logout" class="logout-btn">Logout</a>
+            {% else %}
+                <a href="/login" class="login-btn">Login</a>
             {% endif %}
+            
             <a href="#" class="profile-text" id="profile-icon">
                 <i class="fas fa-user-circle"></i> 
             </a>
-         >
+
             <div class="profile-dropdown" id="profile-dropdown">
               
                 <span class="account-details">Account Details</span>
@@ -65,13 +68,13 @@
 
                         <div class="flash-messages">
                             {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                            <ul>
-                            {% for category, message in messages %}
-                            <li class="{{ category }}">{{ message }}</li>
-                            {% endfor %}
-                            </ul>
-                            {% endif %}
+                                {% if messages %}
+                                    <ul>
+                                        {% for category, message in messages %}
+                                            <li class="{{ category }}">{{ message }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
                             {% endwith %}
                         </div>
 
