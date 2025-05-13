@@ -177,7 +177,7 @@ Follow the steps below to run SEEKreto on your local machine.
 ---
 ## 👥 Contributors
 
-| <img src="./Team%203/jaron.jpg" width="200"/> | <img src="./Team%203/jeff.jpg" width="200"/> | <img src="./Team%203/darlyne.jpg" width="200"/> | <img src="./Team%203/carle.jpg" width="200"/> | <img src="./Team%203/paul.jpg" width="200"/> |
+| <img src="./Team%203/jaron.jpg" width="200"/> | <img src="./Team%203/jeff.jpg" width="200"/> | <img src="./Team%203/darlyne.jpg" width="200"/> | <img src="./Team%203/carle.jpg" width="200"/> | <img src="./Team%203/paul.jpg" width="210"/> |
 | :--------------------------------------------: | :--------------------------------------------: | :---------------------------------------------: | :---------------------------------------------: | :---------------------------------------------: |
 | **[Arquillo, Jaron](https://github.com/JaronLouise)** <br> _JaronLouise_ <br> | **[Balbuena, Jeff](https://github.com/lawrencioqt)** <br> _JeffLawrence_ <br> | **[Lalongisip, Darlyne](https://github.com/drlyngrc)** <br> _Darlyne_ <br> | **[Medina, Carle](https://github.com/controlplusn)** <br> _DevEminent_ <br> | **[Reyes, Paul](https://github.com/par-paulreyes)** <br> _Paul_ <br>|
 
