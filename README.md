@@ -193,6 +193,7 @@ Follow the steps below to run SEEKreto on your local machine.
 ## 🔗 Links
 - 📄 [**Final Report**](https://drive.google.com/file/d/1nX-O0bOsScbo_xkGm7Z1vWBlMnOtrBep/view?usp=sharing)
 - 📊 [**Presentation Slides**](link)
+- 📈 [**UML Diagrams**](https://drive.google.com/drive/folders/1GDIYkAGs2dePe-nJi8FmnJU84wi6nCdb?usp=sharing) 
 - 💻 [**GitHub Repository**](https://github.com/drlyngrc/SEEKreto)
 
 ## 🔐 Security Note
